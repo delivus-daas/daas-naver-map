@@ -5,7 +5,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from "react";
-// import $ from "jquery";
+import $ from "jquery";
 import { renderToStaticMarkup } from "react-dom/server";
 import blackClaimed from "../../assets/svgs/blackClaimed";
 import whiteClaimed from "../../assets/svgs/whiteClaimed";
@@ -15,7 +15,7 @@ import blackDropoff from "../../assets/svgs/blackDropoff";
 import WhiteDropoff from "../../assets/svgs/whiteDropoff";
 import EyesSvg from "../../assets/svgs/eyes";
 import MapLocationCompass from "../../assets/svgs/mapLocationCompass";
-// import MarkerClustering from "../../tools/marker-tools";
+import MarkerClustering from "../../marker-tools";
 import "./daasMap.css";
 import { DeliveryMarker } from "../../assets/svgs/MarkerDeliveryNearest";
 import {
@@ -257,8 +257,8 @@ const DaasMap = forwardRef(
           if (selectedDelivery == i) {
             map.setCenter(d.position);
           }
-          // const selectedMarker = $("#d-marker" + i);
-          // selectedMarker.toggleClass("selected", i === selectedDelivery);
+          const selectedMarker = $("#d-marker" + i);
+          selectedMarker.toggleClass("selected", i === selectedDelivery);
         });
     }, [selectedDelivery]);
 
@@ -282,25 +282,25 @@ const DaasMap = forwardRef(
         assigned,
       }: { claimed: boolean; selected: boolean; assigned: boolean }
     ) => {
-      // $(clusterMarker.getElement()).find("span:last-child").text(count);
-      // const image = $(clusterMarker.getElement()).find("img:first-child");
-      // const container = $(clusterMarker.getElement()).find("#cluster-id");
-      // container.toggleClass("selected", selected);
-      // if (image) {
-      //   if (claimed) {
-      //     if (assigned) {
-      //       image.attr("src", blackClaimed);
-      //     } else {
-      //       image.attr("src", whiteClaimed);
-      //     }
-      //   } else {
-      //     if (assigned) {
-      //       image.attr("src", blackDropoff);
-      //     } else {
-      //       image.attr("src", whiteDropoff);
-      //     }
-      //   }
-      // }
+      $(clusterMarker.getElement()).find("span:last-child").text(count);
+      const image = $(clusterMarker.getElement()).find($("WhiteDropoff"));
+      const container = $(clusterMarker.getElement()).find("#cluster-id");
+      container.toggleClass("selected", selected);
+      if (image) {
+        if (claimed) {
+          if (assigned) {
+            image.replaceWith($("blackClaimed"));
+          } else {
+            image.replaceWith($("whiteClaimed"));
+          }
+        } else {
+          if (assigned) {
+            image.replaceWith($("blackDropoff"));
+          } else {
+            image.replaceWith($("whiteDropoff"));
+          }
+        }
+      }
     };
 
     const createDeliveryCluster = (markers: any[]) => {
@@ -335,17 +335,17 @@ const DaasMap = forwardRef(
         size: new window.naver.maps.Size(100, 100),
         anchor: new window.naver.maps.Point(50, 50),
       };
-      // deliveryClustering.current = new MarkerClustering({
-      //   minClusterSize: 2,
-      //   maxZoom: 10,
-      //   map: mapRef.current,
-      //   markers: markers,
-      //   disableClickZoom: false,
-      //   gridSize: 120,
-      //   icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
-      //   indexGenerator: [6, 11, 30, 40, 50],
-      //   stylingFunction: styleContainerCluster,
-      // });
+      deliveryClustering.current = new MarkerClustering({
+        minClusterSize: 2,
+        maxZoom: 10,
+        map: mapRef.current,
+        markers: markers,
+        disableClickZoom: false,
+        gridSize: 120,
+        icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
+        indexGenerator: [6, 11, 30, 40, 50],
+        stylingFunction: styleContainerCluster,
+      });
     };
 
     const createContainerCluster = (markers: any[]) => {
@@ -360,21 +360,22 @@ const DaasMap = forwardRef(
         size: new window.naver.maps.Size(40, 40),
         anchor: new window.naver.maps.Point(20, 20),
       };
-      // containerClustering.current = new MarkerClustering({
-      //   minClusterSize: 2,
-      //   maxZoom: 30,
-      //   map: mapRef.current,
-      //   markers: markers,
-      //   disableClickZoom: false,
-      //   gridSize: 120,
-      //   icons: [htmlMarker1],
-      //   indexGenerator: [100],
-      //   onClusterClick: onClickOverlappedContainer,
-      //   stylingFunction: styleContainerCluster,
-      // });
+      containerClustering.current = new MarkerClustering({
+        minClusterSize: 2,
+        maxZoom: 30,
+        map: mapRef.current,
+        markers: markers,
+        disableClickZoom: false,
+        gridSize: 120,
+        icons: [htmlMarker1],
+        indexGenerator: [100],
+        onClusterClick: onClickOverlappedContainer,
+        stylingFunction: styleContainerCluster,
+      });
     };
 
     const drawContainer = (container: MapContainerType, index: number) => {
+      console.log("map drawContainer", container, !!window.naver.maps);
       if (
         !!window.naver.maps &&
         !!container?.unit_location?.lat &&
