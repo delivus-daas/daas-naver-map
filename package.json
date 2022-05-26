@@ -13,7 +13,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "rollup": "rollup -c"
+    "rollup": "rollup -c",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "peerDependencies": {
     "react": "^18.1.0",
@@ -24,17 +26,28 @@
     "@types/react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.2",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.2",
-    "@types/react": "17.0.2",
-    "@types/react-dom": "17.0.2",
+    "@storybook/addon-actions": "^6.5.5",
+    "@storybook/addon-essentials": "^6.5.5",
+    "@storybook/addon-interactions": "^6.5.5",
+    "@storybook/addon-links": "^6.5.5",
+    "@storybook/builder-webpack4": "^6.5.5",
+    "@storybook/manager-webpack4": "^6.5.5",
+    "@storybook/react": "^6.5.5",
+    "@storybook/testing-library": "^0.0.11",
     "@types/invariant": "^2.2.35",
     "@types/jquery": "^3.5.14",
     "@types/loadjs": "^4.0.1",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2",
     "autoprefixer": "^10.4.7",
     "babel-loader": "^8.2.5",
     "node-sass": "^7.0.1",
     "postcss": "^8.4.13",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "rollup": "^2.73.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-dts": "^4.2.1",
