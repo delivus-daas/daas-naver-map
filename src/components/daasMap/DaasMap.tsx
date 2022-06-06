@@ -21,8 +21,10 @@ import { DeliveryMarker } from "../../assets/svgs/MarkerDeliveryNearest";
 import {
   DaasMapProps,
   MapContainerType,
+  MapUnitType,
   MapDeliveryType,
 } from "./daasMap.type";
+import UnitInfo from "./UnitInfo";
 declare global {
   interface Window {
     naver: any;
@@ -34,17 +36,22 @@ const DaasMap = forwardRef(
       currentPosition,
       compassSupported,
       containers,
+      units,
       children,
       selectedDelivery,
       selectedContainer,
+      selectedUnit,
       onClickMap,
       isVisibleMarkers,
       isContainerVisible,
+      isUnitVisible,
       isDeliveryVisible,
       onClickOverlappedContainer,
       onClickDelivery,
       onClickContainer,
+      onClickUnit,
       deliveries,
+      isShowInfoWindow,
     }: DaasMapProps,
     ref
   ) => {
@@ -52,6 +59,8 @@ const DaasMap = forwardRef(
     const deliveryMarkers = useRef(new Array());
     const deliveryPreviewMarkers = useRef(new Array());
     const containerMarkers = useRef(new Array());
+    const unitMarkers = useRef(new Array());
+    const unitInfo = useRef<any>();
     const deliveryClustering = useRef<any>();
     const containerClustering = useRef<any>();
     const mypositionMarker = useRef<any>();
@@ -210,9 +219,28 @@ const DaasMap = forwardRef(
     }, [compassSupported]);
 
     useEffect(() => {
+      removeMarkers(unitMarkers.current, unitInfo.current);
+      console.log(
+        "map drawUnits",
+        units,
+        isUnitVisible,
+        isVisibleMarkers,
+        mapRef.current
+      );
+      if (isUnitVisible && isVisibleMarkers && !!mapRef.current) {
+        //배송 목록 있을 떼 업무 목록 표시안
+        if (units && units?.length > 0) {
+          units.map((unit, index) => {
+            drawUnit(unit, index);
+          });
+        }
+      }
+    }, [units, isUnitVisible, isVisibleMarkers, selectedUnit, isShowInfoWindow]);
+
+    useEffect(() => {
       removeMarkers(containerMarkers.current);
       console.log(
-        "map mdrawcontaienrs",
+        "map drawContainers",
         containers,
         isContainerVisible,
         isVisibleMarkers,
@@ -390,6 +418,7 @@ const DaasMap = forwardRef(
           className = "";
 
         const selected =
+          selectedContainer &&
           selectedContainer.filter((c) => c.uuid === container.uuid).length > 0;
         if (selected) {
           size = 64;
@@ -433,16 +462,93 @@ const DaasMap = forwardRef(
         const orderMarker = new window.naver.maps.Marker(markerOptions);
         containerMarkers.current.push(orderMarker);
         if (
+          selectedContainer &&
           selectedContainer.length <= 0 &&
+          selectedDelivery &&
           selectedDelivery < 0 &&
           index == 0
         ) {
           mapRef.current.setCenter(position);
         }
+
         window.naver.maps.Event.addListener(
           orderMarker,
           "click",
           handleClickContainerMarker(index)
+        );
+      }
+    };
+
+    const closeWindow = () => {
+      console.log("map closeWindow", unitInfo.current);
+      if (unitInfo.current) {
+        unitInfo.current.setMap(null);
+        unitInfo.current.close();
+      }
+    };
+
+    const drawUnit = (unit: MapUnitType, index: number) => {
+      console.log("map drawUnit", unit, !!window.naver.maps);
+      const map: any = mapRef.current;
+      if (!!window.naver.maps && !!unit?.address?.lat && !!unit?.address?.lng) {
+        const position = new window.naver.maps.LatLng(
+          unit?.address?.lat,
+          unit?.address?.lng
+        );
+        let size = 32,
+          Svg = blackClaimed,
+          className = "";
+
+        if (index === selectedUnit?.index) {
+          size = 64;
+          className = "selected";
+        }
+
+        const icon = <Svg className={"order-marker-img " + className} />;
+        var markerOptions = {
+          index,
+          position,
+          map,
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(size, size),
+            anchor: new window.naver.maps.Point(size / 2, size / 2),
+          },
+        };
+        const unitMarker = new window.naver.maps.Marker(markerOptions);
+        unitMarkers.current.push(unitMarker);
+        if (
+          selectedUnit?.index &&
+          selectedUnit?.index < 0 &&
+          selectedContainer &&
+          selectedContainer.length <= 0 &&
+          selectedDelivery &&
+          selectedDelivery < 0 &&
+          index == 0
+        ) {
+          map.setCenter(position);
+        }
+
+        if (index === selectedUnit?.index && isShowInfoWindow) {
+          unitInfo.current = new window.naver.maps.InfoWindow({
+            borderWidth: 0,
+            anchorColor: "#151619",
+            pixelOffset: 10,
+            maxWidth: 250,
+            zIndex: 100001,
+            anchorSize: { width: 24, height: 10 },
+            content: [
+              renderToStaticMarkup(
+                <UnitInfo {...selectedUnit} onClose={closeWindow} />
+              ),
+            ].join(""),
+          });
+          unitInfo.current.open(map, unitMarker);
+        }
+        window.naver.maps.Event.addListener(
+          unitMarker,
+          "click",
+          handleClickUnitMarker(index)
         );
       }
     };
@@ -524,6 +630,7 @@ const DaasMap = forwardRef(
         if (selectedDelivery === index) {
           map.setCenter(position);
         }
+
         window.naver.maps.Event.addListener(
           marker,
           "click",
@@ -581,21 +688,34 @@ const DaasMap = forwardRef(
 
     function handleClickDeliveryMarker(delivery: number) {
       return function (e: any) {
-        onClickDelivery(delivery);
+        !!onClickDelivery && onClickDelivery(delivery);
       };
     }
 
     function handleClickContainerMarker(index: number) {
       return function (e: any) {
-        onClickContainer(index);
+        !!onClickContainer && onClickContainer(index);
       };
     }
 
-    function removeMarkers(markers: any[]) {
+    function handleClickUnitMarker(index: number) {
+      return function (e: any) {
+        !!onClickUnit && onClickUnit(index);
+        if (unitInfo.current && unitInfo.current.getMap()) {
+          unitInfo.current.close();
+        }
+      };
+    }
+
+    function removeMarkers(markers: any[], info?: any) {
       for (var i = 0; i < markers.length; i++) {
         if (!!markers[i]) {
           markers[i].setMap(null);
         }
+      }
+      if (!!info) {
+        info.setMap(null);
+        info.close();
       }
       markers.splice(0, markers.length);
     }
