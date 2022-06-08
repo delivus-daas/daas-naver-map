@@ -635,27 +635,8 @@ class Cluster {
       stylingFunction(
         this._clusterMarker,
         this.getCount(),
-        this.isExistClaimed()
+        this._clusterMember
       );
-  }
-
-  isExistClaimed() {
-    var members = this._clusterMember;
-    let claimed = false,
-      selected = false,
-      assigned = false;
-    for (var i = 0, ii = members.length; i < ii; i++) {
-      if (members[i].claimed) {
-        claimed = true;
-      }
-      if (members[i].selected) {
-        selected = true;
-      }
-      if (members[i].assigned) {
-        assigned = true;
-      }
-    }
-    return { claimed, selected, assigned };
   }
 
   /**

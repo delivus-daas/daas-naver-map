@@ -9,8 +9,10 @@ declare type DaasMapProps = {
     units?: MapUnitType[];
     containers?: MapContainerType[];
     deliveries?: MapDeliveryType[];
+    shippings?: MapShippingType[];
     isContainerVisible?: boolean;
     isUnitVisible?: boolean;
+    isShippingVisible?: boolean;
     isDeliveryVisible?: boolean;
     isVisibleMarkers?: boolean;
     compassSupported?: boolean;
@@ -20,10 +22,12 @@ declare type DaasMapProps = {
     selectedUnit?: UnitInfoProps;
     selectedContainer?: any[];
     onClickDelivery?: (item: number) => void;
+    onClickShipping?: (item: number) => void;
     onClickContainer?: (item: number) => void;
     onClickUnit?: (item: number) => void;
     onClickMap?: () => void;
     onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
+    onClickOverlappedShipping?: (overlaped: Overlaped[]) => void;
 };
 interface UnitInfoProps extends MapUnitType {
     num_assigned: number;
@@ -85,6 +89,15 @@ declare type MapDeliveryType = {
     complete: boolean;
     shipping_count: number;
     return_count: number;
+};
+declare type MapShippingType = {
+    address?: {
+        lat: string;
+        lng: string;
+    };
+    uuid: string;
+    complete: boolean;
+    is_return: boolean;
 };
 
 declare global {
