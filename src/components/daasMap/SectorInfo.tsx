@@ -3,7 +3,7 @@ import "./daasMap.css";
 import Close from "../../assets/svgs/close";
 import { UnitInfoProps } from "./daasMap.type";
 
-const UnitInfo = ({
+const SectorInfo = ({
   address,
   name,
   onClose,
@@ -54,4 +54,4 @@ const UnitInfo = ({
   </div>
 );
 
-export default UnitInfo;
+export default SectorInfo;

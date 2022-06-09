@@ -42,6 +42,8 @@ const DaasMap = forwardRef(
       selectedDelivery,
       selectedContainer,
       selectedUnit,
+      selectedShipping,
+      metric,
       onClickMap,
       isVisibleMarkers,
       isContainerVisible,
@@ -291,7 +293,13 @@ const DaasMap = forwardRef(
         });
       }
       reDrawCluster(shippingClustering.current, shippingMarkers.current);
-    }, [shippings, isVisibleMarkers, isShippingVisible]);
+    }, [
+      shippings,
+      isVisibleMarkers,
+      isShippingVisible,
+      metric,
+      selectedShipping,
+    ]);
 
     useEffect(() => {
       //update delivery marker style when selected marker change
@@ -356,7 +364,6 @@ const DaasMap = forwardRef(
       );
 
       const image = $(clusterMarker.getElement()).find(".delivery-marker-img");
-      console.log("map styleShippingCluster", shipping_count, return_count);
       const container = $(clusterMarker.getElement()).find(
         "#shipping-cluster-id"
       );
@@ -443,7 +450,6 @@ const DaasMap = forwardRef(
         }
       });
 
-      console.log("map shippingCluster", markers, return_count, shipping_count);
       let bg = "var(--primary)";
       let size = 52;
       let className = "";
@@ -467,22 +473,22 @@ const DaasMap = forwardRef(
       const icon = (
         <div
           id={"shipping-cluster-id"}
-          className={"delivery-marker body1 bold white " + className}
+          className={"shipping-marker " + className}
         >
           <DeliveryMarker className={"delivery-marker-img"} fill={bg} />
           {shipping_count > 0 ? (
             <>
-              <span className={"map-delivery-count bold white"}>
+              <span className={"map-delivery-count body1 bold white"}>
                 {shipping_count + "FFF"}
               </span>
               {return_count > 0 && (
-                <span className={"map-delivery-return-count bold white"}>
+                <span className={"map-delivery-return-count body1 bold white"}>
                   {return_count}
                 </span>
               )}
             </>
           ) : (
-            <span className={"map-delivery-count bold white"}>
+            <span className={"map-delivery-count body1 bold white"}>
               {"R" + return_count}
             </span>
           )}
@@ -816,9 +822,31 @@ const DaasMap = forwardRef(
         let bg = "var(--primary)";
         let size = 52;
         let className = "";
-        if (index === selectedDelivery) {
+
+        let selected = false;
+        if (selectedShipping) {
+          const selectedSector =
+            selectedShipping.designated_sector ||
+            selectedShipping.address?.sector;
+          const sector = delivery.designated_sector || delivery.address?.sector;
+          switch (metric) {
+            case "area":
+              selected = sector?.area == selectedSector?.area;
+              console.log("daasmap area", sector, selectedSector, selected);
+              break;
+            case "sector":
+              selected = sector?.code == selectedSector?.code;
+              console.log("daasmap sector", sector, selectedSector, selected);
+              break;
+            case "shipping":
+              selected =
+                delivery.address?.address1 ==
+                selectedShipping.address?.address1;
+              console.log("daasmap shipping", sector, selectedSector, selected);
+          }
+        }
+        if (selected) {
           className = "selected";
-          size = 100;
         }
         if (delivery.complete) {
           bg = "var(--grey96)";
@@ -829,19 +857,23 @@ const DaasMap = forwardRef(
         const icon = (
           <div
             id={"d-marker" + index}
-            className={"delivery-marker body1 bold white " + className}
+            className={"shipping-marker " + className}
           >
             <DeliveryMarker className={"delivery-marker-img"} fill={bg} />
             {!delivery.is_return ? (
               <>
-                <div className={"map-delivery-count bold white"}>{1}</div>
+                <div className={"map-delivery-count body1 bold white"}>{1}</div>
               </>
             ) : (
-              <div className={"map-delivery-count bold white"}>{"R1"}</div>
+              <div className={"map-delivery-count body1 bold white"}>
+                {"R1"}
+              </div>
             )}
           </div>
         );
         var markerOptions = {
+          index,
+          selected,
           position,
           map,
           icon: {

@@ -130,9 +130,20 @@
     align-items: center;
     transform-origin: bottom center;
     transform-style: preserve-3D;
-    /*-webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14) reverse;*/
+    -webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14) reverse;
     animation-fill-mode: forwards;
     -webkit-animation-fill-mode: forwards;
+}
+
+.shipping-marker {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+}
+
+.shipping-marker.selected {
+    background: rgba(110, 110, 255, 0.4) !important;
 }
 
 .delivery-marker.selected {

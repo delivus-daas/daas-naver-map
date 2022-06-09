@@ -21,6 +21,8 @@ declare type DaasMapProps = {
     selectedDelivery?: number;
     selectedUnit?: UnitInfoProps;
     selectedContainer?: any[];
+    metric?: MetricType;
+    selectedShipping?: MapShippingType;
     onClickDelivery?: (item: number) => void;
     onClickShipping?: (item: number) => void;
     onClickContainer?: (item: number) => void;
@@ -90,14 +92,26 @@ declare type MapDeliveryType = {
     shipping_count: number;
     return_count: number;
 };
+declare type MetricType = "area" | "sector" | "shipping";
 declare type MapShippingType = {
     address?: {
         lat: string;
         lng: string;
+        sector?: {
+            area: string;
+            code: string;
+        };
     };
     uuid: string;
     complete: boolean;
     is_return: boolean;
+    designated_sector?: {
+        area: string;
+        code: string;
+    };
+    shipping_container?: {
+        uuid: string;
+    };
 };
 
 declare global {
