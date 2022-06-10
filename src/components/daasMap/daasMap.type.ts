@@ -15,6 +15,7 @@ export type DaasMapProps = {
   children?: JSX.Element | JSX.Element[];
   selectedDelivery?: number;
   selectedUnit?: UnitInfoProps;
+  selectedSector?: SectorInfoProps;
   selectedContainer?: any[];
   metric?: MetricType;
   selectedShipping?: MapShippingType;
@@ -35,8 +36,15 @@ export interface UnitInfoProps extends MapUnitType {
   num_ready_for_return_hub: number;
   num_ready_for_return_unit: number;
   num_total: number;
-  onClose: () => void;
   index?: number;
+}
+
+export interface SectorInfoProps extends MapSectorType {
+  count_total: number;
+  count_shipping: number;
+  count_return: number;
+  metric?: MetricType;
+  name?: string;
 }
 
 export type MapContainerType = {
@@ -94,15 +102,16 @@ export type MapDeliveryType = {
 
 export type MetricType = "area" | "sector" | "shipping";
 
+export type MapSectorType = {
+  area: string;
+  code: string;
+};
 export type MapShippingType = {
   address?: {
     lat: string;
     lng: string;
     address1: string;
-    sector?: {
-      area: string;
-      code: string;
-    };
+    sector?: MapSectorType;
   };
   uuid: string;
   complete: boolean;

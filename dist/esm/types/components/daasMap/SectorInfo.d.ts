@@ -1,5 +1,5 @@
 /// <reference types="react" />
 import "./daasMap.css";
-import { UnitInfoProps } from "./daasMap.type";
-declare const SectorInfo: ({ address, name, onClose, num_assigned, num_delivery_completed, num_out_for_delivery, num_ready_for_delivery, num_ready_for_return_hub, num_ready_for_return_unit, num_total, }: UnitInfoProps) => JSX.Element;
+import { SectorInfoProps } from "./daasMap.type";
+declare const SectorInfo: ({ metric, area, code, count_total, count_return, count_shipping, }: SectorInfoProps) => JSX.Element;
 export default SectorInfo;
