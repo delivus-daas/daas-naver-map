@@ -361,7 +361,7 @@ const DaasMap = forwardRef(
         ) {
           map.setCenter(position);
         }
-
+        console.log("drawTooltipUnit", index, selectedUnit?.index, isShowInfoWindow);
         if (index === selectedUnit?.index && isShowInfoWindow) {
           drawTooltipUnit(unitMarker, map, selectedUnit);
         }
@@ -611,7 +611,12 @@ const DaasMap = forwardRef(
               selected =
                 delivery.address?.address1 ==
                 selectedShipping.address?.address1;
-              console.log("daasmap shipping", sector, selectedSector, selected);
+              console.log(
+                "daasmap shipping",
+                delivery.address?.address1,
+                selectedShipping.address?.address1,
+                selected
+              );
           }
         }
         if (selected) {
@@ -654,6 +659,13 @@ const DaasMap = forwardRef(
         const marker = new window.naver.maps.Marker(markerOptions);
         shippingMarkers.current.push(marker);
 
+        console.log(
+          "drawShipping",
+          selectedSector,
+          delivery,
+          selectedShipping,
+          isShowInfoWindow
+        );
         if (
           !!selectedSector &&
           delivery.uuid === selectedShipping?.uuid &&
