@@ -23,6 +23,7 @@ declare class MarkerClustering extends window.naver.maps.OverlayView {
         markers: never[];
         disableClickZoom: boolean;
         minClusterSize: number;
+        maxDistance: number;
         maxZoom: number;
         gridSize: number;
         icons: never[];

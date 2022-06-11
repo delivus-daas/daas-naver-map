@@ -860,7 +860,7 @@ const DaasMap = forwardRef(
         map: mapRef.current,
         markers: markers,
         disableClickZoom: false,
-        gridSize: 120,
+        gridSize: 5,
         icons: [htmlMarker5],
         indexGenerator: [20],
         stylingFunction: styleClusterShipping,

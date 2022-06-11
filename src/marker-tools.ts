@@ -32,6 +32,8 @@ class MarkerClustering extends window.naver.maps.OverlayView {
     disableClickZoom: true,
     // 클러스터를 구성할 최소 마커 수입니다.
     minClusterSize: 2,
+    // 클러스터로 묶을 최대 거리
+    maxDistance: Infinity,
     // 클러스터 마커로 표현할 최대 줌 레벨입니다. 해당 줌 레벨보다 높으면, 클러스터를 구성하고 있는 마커를 노출합니다.
     maxZoom: 12,
     // 클러스터를 구성할 그리드 크기입니다. 단위는 픽셀입니다.
