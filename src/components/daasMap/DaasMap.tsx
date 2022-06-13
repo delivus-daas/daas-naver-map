@@ -439,12 +439,13 @@ const DaasMap = forwardRef(
       index: number,
       selectedContainer?: MapContainerType[]
     ) => {
-      const map = mapRef.current;
       if (
+        !!mapRef.current &&
         !!window.naver.maps &&
         !!container?.unit_location?.lat &&
         !!container?.unit_location?.lng
       ) {
+        const map = mapRef.current;
         const position = new window.naver.maps.LatLng(
           container.unit_location.lat,
           container.unit_location.lng
@@ -505,7 +506,7 @@ const DaasMap = forwardRef(
           selectedDelivery < 0 &&
           index == 0
         ) {
-          mapRef.current.setCenter(position);
+          map.setCenter(position);
         }
 
         window.naver.maps.Event.addListener(
