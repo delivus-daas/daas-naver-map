@@ -439,7 +439,7 @@ const DaasMap = forwardRef(
       index: number,
       selectedContainer?: MapContainerType[]
     ) => {
-      const map = window.naver.maps;
+      const map = mapRef.current;
       if (
         !!window.naver.maps &&
         !!container?.unit_location?.lat &&
