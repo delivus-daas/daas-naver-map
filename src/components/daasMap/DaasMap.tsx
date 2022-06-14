@@ -1175,9 +1175,13 @@ const DaasMap = forwardRef(
       async (clusterMembers: Overlaped[]) => {
         const selectedShippingList = getSelectedShippings(clusterMembers);
         const selectedSector = getSelectedSector(selectedShippingList);
-
+        console.log("map handleClickShippingCluster", shippingGroupRef.current);
         if (onClickOverlappedShipping)
-          onClickOverlappedShipping(selectedShippingList, selectedSector, shippingGroupRef.current);
+          onClickOverlappedShipping(
+            selectedShippingList,
+            selectedSector,
+            shippingGroupRef.current
+          );
       },
       []
     );
