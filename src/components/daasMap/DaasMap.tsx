@@ -28,6 +28,7 @@ import {
   SectorInfoProps,
   Overlaped,
   MetricType,
+  MapSectorType,
 } from "./daasMap.type";
 import UnitInfo from "./UnitInfo";
 import SectorInfo from "./SectorInfo";
@@ -952,7 +953,7 @@ const DaasMap = forwardRef(
         icons: [htmlMarker5],
         indexGenerator: [20],
         stylingFunction: styleClusterShipping,
-        onClusterClick: onClickOverlappedShipping,
+        onClusterClick: handleClickShippingCluster,
         onClusterMouseOver: handleMouseOverShippingCluster,
         onClusterMouseOut: handleMouseOutShippingCluster,
       });
@@ -1174,6 +1175,17 @@ const DaasMap = forwardRef(
       [onMouseOutShippingCluster]
     );
 
+    const handleClickShippingCluster = useCallback(
+      async (clusterMembers: Overlaped[]) => {
+        const selectedShippingList = getSelectedShippings(clusterMembers);
+        const selectedSector = getSelectedSector(selectedShippingList);
+
+        if (onClickOverlappedShipping)
+          onClickOverlappedShipping(selectedShippingList, selectedSector);
+      },
+      []
+    );
+
     const handleMouseOverShippingCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {
         if (clusterMembers && clusterMembers.length > 0) {
@@ -1192,7 +1204,7 @@ const DaasMap = forwardRef(
           );
           redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
-            onMouseOverShippingCluster(selectedShippingList);
+            onMouseOverShippingCluster(selectedShippingList, selectedSector);
           if (!!getSectorInfo) {
             const sector = await getSectorInfo(selectedSector);
 
