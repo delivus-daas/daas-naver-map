@@ -51,6 +51,8 @@ class MarkerClustering extends window.naver.maps.OverlayView {
   _mapRelations = null;
   _markerRelations: any = [];
   onClusterClick: any;
+  onClusterMouseOver: any;
+  onClusterMouseOut: any;
 
   constructor(options: any) {
     super();
@@ -426,7 +428,12 @@ class MarkerClustering extends window.naver.maps.OverlayView {
     }
 
     if (!closestCluster) {
-      closestCluster = new Cluster(this, this.onClusterClick);
+      closestCluster = new Cluster(
+        this,
+        this.onClusterClick,
+        this.onClusterMouseOver,
+        this.onClusterMouseOut
+      );
       this._clusters.push(closestCluster);
     }
 
@@ -460,12 +467,23 @@ class Cluster {
   _clusterMember: any[] = [];
   _markerClusterer: any = null;
 
-  constructor(markerClusterer: any, onClickCluster: any) {
+  constructor(
+    markerClusterer: any,
+    onClickCluster: any,
+    onClusterMouseOver: any,
+    onClusterMouseOut: any
+  ) {
     this._onClusterClick = onClickCluster;
+    this._onClusterMouseOver = onClusterMouseOver;
+    this._onClusterMouseOut = onClusterMouseOut;
     this._markerClusterer = markerClusterer;
   }
 
   _onClusterClick(member: any) {}
+
+  _onClusterMouseOver(member: any) {}
+
+  _onClusterMouseOut(member: any) {}
   /**
    * 클러스터에 마커를 추가합니다.
    * @param {window.naver.maps.Marker} marker 클러스터에 추가할 마커
@@ -562,6 +580,24 @@ class Cluster {
         else {
           map.morph(e.coord, 13);
         }
+      }, this)
+    );
+
+    this._relation = window.naver.maps.Event.addListener(
+      this._clusterMarker,
+      "mouseover",
+      window.naver.maps.Util.bind((e: any) => {
+        if (this._onClusterMouseOver)
+          this._onClusterMouseOver(this._clusterMember);
+      }, this)
+    );
+
+    this._relation = window.naver.maps.Event.addListener(
+      this._clusterMarker,
+      "mouseout",
+      window.naver.maps.Util.bind((e: any) => {
+        if (this._onClusterMouseOut)
+          this._onClusterMouseOut(this._clusterMember);
       }, this)
     );
   }

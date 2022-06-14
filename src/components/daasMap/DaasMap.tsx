@@ -57,8 +57,11 @@ const DaasMap = forwardRef(
       isShippingVisible,
       onClickOverlappedContainer,
       onClickOverlappedShipping,
+      onMouseOverShippingCluster,
+      onMouseOutShippingCluster,
       onClickDelivery,
       onClickShipping,
+      onMouseOverShipping,
       onClickContainer,
       onClickUnit,
       deliveries,
@@ -723,6 +726,11 @@ const DaasMap = forwardRef(
           "click",
           handleClickShippingMarker(index)
         );
+        window.naver.maps.Event.addListener(
+          marker,
+          "mouseover mouseout",
+          handleMouseOverShippingMarker(index)
+        );
       }
     };
 
@@ -939,6 +947,8 @@ const DaasMap = forwardRef(
         indexGenerator: [20],
         stylingFunction: styleClusterShipping,
         onClusterClick: onClickOverlappedShipping,
+        onClusterMouseOver: onMouseOverShippingCluster,
+        onClusterMouseOut: onMouseOutShippingCluster,
       });
     };
 
@@ -1116,6 +1126,12 @@ const DaasMap = forwardRef(
     function handleClickShippingMarker(delivery: number) {
       return function (e: any) {
         !!onClickShipping && onClickShipping(delivery);
+      };
+    }
+
+    function handleMouseOverShippingMarker(delivery: number) {
+      return function (e: any) {
+        !!onMouseOverShipping && onMouseOverShipping(delivery);
       };
     }
 

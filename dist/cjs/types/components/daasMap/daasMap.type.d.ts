@@ -24,11 +24,14 @@ export declare type DaasMapProps = {
     selectedShipping?: MapShippingType;
     onClickDelivery?: (item: number) => void;
     onClickShipping?: (item: number) => void;
+    onMouseOverShipping?: (item: number) => void;
     onClickContainer?: (item: number) => void;
     onClickUnit?: (item: number) => void;
     onClickMap?: () => void;
     onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
     onClickOverlappedShipping?: (overlaped: Overlaped[]) => void;
+    onMouseOverShippingCluster?: (overlaped: Overlaped[]) => void;
+    onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
 export interface UnitInfoProps extends MapUnitType {
     num_assigned: number;

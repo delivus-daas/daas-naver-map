@@ -35,6 +35,8 @@ declare class MarkerClustering extends window.naver.maps.OverlayView {
     _mapRelations: null;
     _markerRelations: any;
     onClusterClick: any;
+    onClusterMouseOver: any;
+    onClusterMouseOut: any;
     constructor(options: any);
     draw: any;
     onAdd(): void;
