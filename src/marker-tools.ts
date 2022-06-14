@@ -397,6 +397,7 @@ class MarkerClustering extends window.naver.maps.OverlayView {
    * @private
    */
   _redraw() {
+    console.log("redraw clusters");
     this._clearClusters();
     this._createClusters();
     this._updateClusters();
@@ -464,6 +465,7 @@ class Cluster {
   _clusterBounds: any = null;
   _clusterMarker: any = null;
   _relation = null;
+  mouseovered = false;
   _clusterMember: any[] = [];
   _markerClusterer: any = null;
 
@@ -587,8 +589,11 @@ class Cluster {
       this._clusterMarker,
       "mouseover",
       window.naver.maps.Util.bind((e: any) => {
-        if (this._onClusterMouseOver)
+        console.log("map cluster mouseover event", this.mouseovered);
+        if (this._onClusterMouseOver && !this.mouseovered) {
+          this.mouseovered = true;
           this._onClusterMouseOver(this._clusterMember);
+        }
       }, this)
     );
 
@@ -596,6 +601,7 @@ class Cluster {
       this._clusterMarker,
       "mouseout",
       window.naver.maps.Util.bind((e: any) => {
+        this.mouseovered = false;
         if (this._onClusterMouseOut)
           this._onClusterMouseOut(this._clusterMember);
       }, this)

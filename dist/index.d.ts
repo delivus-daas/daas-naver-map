@@ -32,7 +32,8 @@ declare type DaasMapProps = {
     onClickMap?: () => void;
     onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
     onClickOverlappedShipping?: (overlaped: Overlaped[]) => void;
-    onMouseOverShippingCluster?: (overlaped: Overlaped[]) => void;
+    onMouseOverShippingCluster?: (shipping: MapShippingType[]) => void;
+    getSectorInfo?: (sector: MapSectorType) => Promise<SectorInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
 interface UnitInfoProps extends MapUnitType {
@@ -46,9 +47,9 @@ interface UnitInfoProps extends MapUnitType {
     index?: number;
 }
 interface SectorInfoProps extends MapSectorType {
-    count_total: number;
-    count_shipping: number;
-    count_return: number;
+    count_total?: number;
+    count_shipping?: number;
+    count_return?: number;
     metric?: MetricType;
     name?: string;
 }
@@ -115,6 +116,7 @@ declare type MapShippingType = {
         sector?: MapSectorType;
     };
     uuid: string;
+    tracking_number: string;
     complete: boolean;
     is_return: boolean;
     designated_sector?: {
