@@ -231,6 +231,10 @@
     width: 92px;
 }
 
+.info-label-shipping {
+    margin-left: 10px;
+}
+
 .info-btn {
     z-index: 101;
     background: none;

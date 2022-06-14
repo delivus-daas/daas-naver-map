@@ -4,10 +4,10 @@ import { ShippingsInfoProps } from "./daasMap.type";
 
 const ShippingsInfo = ({ shippings }: ShippingsInfoProps) => (
   <div className="info-container white">
-    {shippings.map((s) => (
-      <div className={"row small bold info-title info-row"}>
-        <span className={"info-label"}>{""}</span>
-        <span>{s.tracking_number}</span>
+    {shippings.map((s, i) => (
+      <div key={"shippinginfo" + i} className={"row small  info-row"}>
+        <span className={"bold"}>{"물품"}</span>
+        <span className={"info-label-shipping"}>{s.tracking_number}</span>
       </div>
     ))}
   </div>

@@ -397,7 +397,6 @@ class MarkerClustering extends window.naver.maps.OverlayView {
    * @private
    */
   _redraw() {
-    console.log("redraw clusters");
     this._clearClusters();
     this._createClusters();
     this._updateClusters();
@@ -465,7 +464,8 @@ class Cluster {
   _clusterBounds: any = null;
   _clusterMarker: any = null;
   _relation = null;
-  mouseovered = false;
+  _relationMouse = null;
+  mouseOut = false;
   _clusterMember: any[] = [];
   _markerClusterer: any = null;
 
@@ -508,6 +508,7 @@ class Cluster {
    */
   destroy() {
     window.naver.maps.Event.removeListener(this._relation);
+    window.naver.maps.Event.removeListener(this._relationMouse);
 
     var members = this._clusterMember;
 
@@ -521,6 +522,7 @@ class Cluster {
     this._clusterCenter = null;
     this._clusterBounds = null;
     this._relation = null;
+    this._relationMouse = null;
 
     this._clusterMember = [];
   }
@@ -569,6 +571,37 @@ class Cluster {
   /**
    * 클러스터 마커 클릭 시 줌 동작을 수행하도록 합니다.
    */
+  handleMouseOver() {
+    console.log("mouseover", window.mouseOut);
+    if (this._onClusterMouseOver && !window.mouseOut) {
+      window.mouseOut = true;
+      this._onClusterMouseOver(this._clusterMember);
+    }
+  }
+
+  handleMouseOut() {
+    console.log("mouseoout", window.mouseOut);
+    if (this._onClusterMouseOut) {
+      window.mouseOut = false;
+      this._onClusterMouseOut(this._clusterMember);
+    }
+  }
+
+  enableMouseOver() {
+    if (this._relationMouse) return;
+
+    this._relationMouse = window.naver.maps.Event.addListener(
+      this._clusterMarker,
+      "mouseover",
+      this.handleMouseOver.bind(this)
+    );
+
+    this._relationMouse = window.naver.maps.Event.addListener(
+      this._clusterMarker,
+      "mouseout",
+      this.handleMouseOut.bind(this)
+    );
+  }
   enableClickZoom() {
     if (this._relation) return;
 
@@ -578,36 +611,21 @@ class Cluster {
       this._clusterMarker,
       "click",
       window.naver.maps.Util.bind((e: any) => {
-        if (this._onClusterClick) this._onClusterClick(this._clusterMember);
-        else {
-          map.morph(e.coord, 13);
+        if (e.domEvent.type == "mouseenter") {
+          if (this._onClusterMouseOver)
+            this._onClusterMouseOver(this._clusterMember);
+        } else if (e.domEvent.type == "click") {
+          if (this._onClusterClick) this._onClusterClick(this._clusterMember);
+          else {
+            map.morph(e.coord, 13);
+          }
+        } else if (e.domEvent.type == "mouseleave") {
+          if (this._onClusterMouseOut)
+            this._onClusterMouseOut(this._clusterMember);
         }
-      }, this)
-    );
-
-    this._relation = window.naver.maps.Event.addListener(
-      this._clusterMarker,
-      "mouseover",
-      window.naver.maps.Util.bind((e: any) => {
-        console.log("map cluster mouseover event", this.mouseovered);
-        if (this._onClusterMouseOver && !this.mouseovered) {
-          this.mouseovered = true;
-          this._onClusterMouseOver(this._clusterMember);
-        }
-      }, this)
-    );
-
-    this._relation = window.naver.maps.Event.addListener(
-      this._clusterMarker,
-      "mouseout",
-      window.naver.maps.Util.bind((e: any) => {
-        this.mouseovered = false;
-        if (this._onClusterMouseOut)
-          this._onClusterMouseOut(this._clusterMember);
       }, this)
     );
   }
-
   /**
    * 클러스터 마커 클릭 시 줌 동작을 수행하지 않도록 합니다.
    */
@@ -642,6 +660,7 @@ class Cluster {
       if (!this._markerClusterer.getDisableClickZoom()) {
         this.enableClickZoom();
       }
+      this.enableMouseOver();
     }
 
     this.updateIcon();
