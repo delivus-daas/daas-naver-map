@@ -28,7 +28,6 @@ import {
   SectorInfoProps,
   Overlaped,
   MetricType,
-  MapSectorType,
 } from "./daasMap.type";
 import UnitInfo from "./UnitInfo";
 import SectorInfo from "./SectorInfo";
@@ -50,9 +49,6 @@ const DaasMap = forwardRef(
       selectedDelivery,
       selectedContainer,
       selectedUnit,
-      // selectedSector,
-      // selectedShipping,
-      // metric,
       onClickMap,
       isVisibleMarkers,
       isContainerVisible,
@@ -1181,7 +1177,7 @@ const DaasMap = forwardRef(
         const selectedSector = getSelectedSector(selectedShippingList);
 
         if (onClickOverlappedShipping)
-          onClickOverlappedShipping(selectedShippingList, selectedSector);
+          onClickOverlappedShipping(selectedShippingList, selectedSector, shippingGroupRef.current);
       },
       []
     );

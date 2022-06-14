@@ -7,7 +7,6 @@ export declare type DaasMapProps = {
     units?: MapUnitType[];
     containers?: MapContainerType[];
     deliveries?: MapDeliveryType[];
-    shippings?: MapShippingType[];
     isContainerVisible?: boolean;
     isUnitVisible?: boolean;
     isShippingVisible?: boolean;
@@ -18,10 +17,7 @@ export declare type DaasMapProps = {
     children?: JSX.Element | JSX.Element[];
     selectedDelivery?: number;
     selectedUnit?: UnitInfoProps;
-    selectedSector?: SectorInfoProps;
     selectedContainer?: any[];
-    metric?: MetricType;
-    selectedShipping?: MapShippingType;
     onClickDelivery?: (item: number) => void;
     onClickShipping?: (item: number) => void;
     onMouseOverShipping?: (item: number) => void;
@@ -29,7 +25,7 @@ export declare type DaasMapProps = {
     onClickUnit?: (item: number) => void;
     onClickMap?: () => void;
     onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
-    onClickOverlappedShipping?: (shippings: MapShippingType[], sector: MapSectorType) => void;
+    onClickOverlappedShipping?: (shippings: MapShippingType[], sector: MapSectorType, metric: MetricType) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: MapSectorType) => void;
     getSectorInfo?: (sector: MapSectorType) => Promise<SectorInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
