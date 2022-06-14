@@ -664,7 +664,7 @@ const DaasMap = forwardRef(
           delivery.address.lng
         );
         const map: any = mapRef.current;
-        let bg = "var(--primary)",
+        let bg = "var(--greyc4)",
           size = 52,
           className = "",
           selected = checkShippingIsSelected(delivery, selectedSector);
@@ -891,7 +891,7 @@ const DaasMap = forwardRef(
         }
       });
 
-      let bg = "var(--primary)";
+      let bg = "var(--greyc4)";
       let size = 52;
       let className = "";
       // if (index === selectedDelivery) {
