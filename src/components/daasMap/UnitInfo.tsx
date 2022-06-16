@@ -18,10 +18,6 @@ const UnitInfo = ({
       <span>{name}</span>
     </div>
     <div className={"row small info-row"}>
-      <span className={"bold info-label"}>유닛 주소</span>
-      <span>{address.address_road}</span>
-    </div>
-    <div className={"row smal info-row"}>
       <span className={"bold info-label"}>픽업 대기</span>
       <span>{num_assigned + "/" + num_total}</span>
     </div>
