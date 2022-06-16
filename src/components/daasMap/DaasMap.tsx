@@ -44,11 +44,9 @@ const DaasMap = forwardRef(
       currentPosition,
       compassSupported,
       containers,
-      units,
       children,
       selectedDelivery,
       selectedContainer,
-      selectedUnit,
       onClickMap,
       isVisibleMarkers,
       isContainerVisible,
@@ -59,10 +57,13 @@ const DaasMap = forwardRef(
       onClickOverlappedShipping,
       onMouseOverShippingCluster,
       getSectorInfo,
+      getUnitInfo,
       onMouseOutShippingCluster,
       onClickDelivery,
       onClickShipping,
       onMouseOverShipping,
+      onMouseOverUnit,
+      onMouseOutUnit,
       onClickContainer,
       onClickUnit,
       deliveries,
@@ -78,11 +79,17 @@ const DaasMap = forwardRef(
     const unitMarkers = useRef(new Array());
     const unitInfo = useRef<any>();
     const shippingsRef = useRef<MapShippingType[]>();
+    const unitsRef = useRef<MapUnitType[]>();
     const shippingGroupRef = useRef<MetricType>("area");
     const deliveryClustering = useRef<any>();
     const shippingClustering = useRef<any>();
     const containerClustering = useRef<any>();
     const mypositionMarker = useRef<any>();
+
+    const getSelectedUnit = (index: number) => {
+      const units = unitsRef.current;
+      return units?.length && units?.length > index ? units[index] : undefined;
+    };
 
     const getSelectedShippings = (clusters: Overlaped[]) => {
       const selectedShippings: MapShippingType[] = [];
@@ -174,6 +181,7 @@ const DaasMap = forwardRef(
       ref,
       () => ({
         drawShippingMarkers: drawMarkersShippings,
+        drawUnitMarkers: drawMarkersUnits,
         zoomIn: () => {
           const map = mapRef.current;
           const zoom = map.getOptions("zoom");
@@ -284,10 +292,6 @@ const DaasMap = forwardRef(
     }, [selectedDelivery]);
 
     useEffect(() => {
-      drawMarkersUnits(units, isVisibleMarkers, isUnitVisible);
-    }, [units, isUnitVisible, isVisibleMarkers]);
-
-    useEffect(() => {
       drawMarkersContainers(
         containers,
         selectedContainer,
@@ -301,18 +305,14 @@ const DaasMap = forwardRef(
     }, [deliveries, isVisibleMarkers, isDeliveryVisible]);
 
     /**Draw markers**/
-    const drawMarkersUnits = (
-      units?: MapUnitType[],
-      isVisibleMarkers?: boolean,
-      isContainerVisible?: boolean,
-      selectedUnit?: UnitInfoProps
-    ) => {
+    const drawMarkersUnits = (units?: MapUnitType[]) => {
+      if (!!units) unitsRef.current = units;
+
       removeMarkers(unitMarkers.current, unitInfo.current);
       if (isUnitVisible && isVisibleMarkers && !!mapRef.current) {
-        //배송 목록 있을 떼 업무 목록 표시안
         if (units && units?.length > 0) {
           units.map((unit, index) => {
-            drawMarkerUnit(unit, index, selectedUnit);
+            drawMarkerUnit(unit, index);
           });
         }
       }
@@ -382,16 +382,11 @@ const DaasMap = forwardRef(
       }
       redrawCluster(shippingClustering.current, shippingMarkers.current);
     };
-
     /** Draw marker **/
 
-    const drawMarkerUnit = (
-      unit: MapUnitType,
-      index: number,
-      selectedUnit?: UnitInfoProps
-    ) => {
+    const drawMarkerUnit = (unit: MapUnitType, index: number) => {
       const map: any = mapRef.current;
-      if (!!window.naver.maps && !!unit?.address?.lat && !!unit?.address?.lng) {
+      if (!!unit?.address?.lat && !!unit?.address?.lng) {
         const position = new window.naver.maps.LatLng(
           unit?.address?.lat,
           unit?.address?.lng
@@ -401,12 +396,14 @@ const DaasMap = forwardRef(
           Svg = blackClaimed,
           className = "";
 
-        if (index === selectedUnit?.index) {
-          size = 64;
-          className = "selected";
-        }
-
-        const icon = <Svg className={"order-marker-img " + className} />;
+        const icon = (
+          <div>
+            <Svg
+              id={"u-marker" + index}
+              className={"order-marker-img " + className}
+            />
+          </div>
+        );
         var markerOptions = {
           index,
           position,
@@ -417,18 +414,25 @@ const DaasMap = forwardRef(
             anchor: new window.naver.maps.Point(size / 2, size / 2),
           },
         };
-        const unitMarker = new window.naver.maps.Marker(markerOptions);
-        unitMarkers.current.push(unitMarker);
-        if (selectedUnit?.index && selectedUnit?.index < 0 && index == 0) {
-          map.setCenter(position);
-        }
-        if (index === selectedUnit?.index && isShowInfoWindow) {
-          drawTooltipUnit(unitMarker, map, selectedUnit);
-        }
+        const marker = new window.naver.maps.Marker(markerOptions);
+        unitMarkers.current.push(marker);
+
         window.naver.maps.Event.addListener(
-          unitMarker,
+            marker,
           "click",
           handleClickUnitMarker(index)
+        );
+
+        window.naver.maps.Event.addListener(
+            marker,
+          "mouseover",
+          handleMouseOverUnitMarker(index, marker)
+        );
+
+        window.naver.maps.Event.addListener(
+            marker,
+          "mouseout",
+          handleMouseOutUnitMarker(index)
         );
       }
     };
@@ -705,14 +709,6 @@ const DaasMap = forwardRef(
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         shippingMarkers.current.push(marker);
-
-        // if (
-        //   !!selectedSector &&
-        //   delivery.uuid === selectedShipping?.uuid &&
-        //   isShowInfoWindow
-        // ) {
-        //   drawTooltipSector(marker, map, selectedSector);
-        // }
 
         window.naver.maps.Event.addListener(
           marker,
@@ -1032,6 +1028,17 @@ const DaasMap = forwardRef(
       container.toggleClass("selected", selected);
     };
 
+    /** update style of marker if its selected or not **/
+    const updateUnitMarkers = (selectedUnitIndex?: number) => {
+      unitMarkers.current &&
+        unitMarkers.current.forEach((d, i) => {
+          const markerSvg = $("#u-marker" + i);
+          const selected = selectedUnitIndex == i;
+          d.setOptions({ selected, size: selected ? 64 : 32 });
+          markerSvg.toggleClass("selected", selected);
+        });
+    };
+
     const updateShippingMarkers = (
       selectedSector?: SectorInfoProps,
       selectedShippings?: MapShippingType[],
@@ -1154,13 +1161,6 @@ const DaasMap = forwardRef(
       };
     }
 
-    function handleClickUnitMarker(index: number) {
-      return function (e: any) {
-        !!onClickUnit && onClickUnit(index);
-        closeWindowTooltip();
-      };
-    }
-
     const handleMouseOutShippingCluster = useCallback(
       (clusterMembers: Overlaped[]) => {
         updateShippingMarkers();
@@ -1185,6 +1185,41 @@ const DaasMap = forwardRef(
       },
       []
     );
+
+    const handleClickUnitMarker = (index: number) => {
+      return function (e: any) {
+        console.log("daasmap handleClickUnitMarker");
+        const selectedUnit = getSelectedUnit(index);
+        !!onClickUnit && onClickUnit(index, selectedUnit);
+      }
+    };
+
+    const handleMouseOutUnitMarker = (index: number) => {
+      return function (e: any) {
+        console.log("daasmap handleMouseOutUnitMarker");
+        !!onMouseOutUnit && onMouseOutUnit(index);
+        updateUnitMarkers(index);
+        closeWindowTooltip();
+      }
+    };
+
+    const handleMouseOverUnitMarker = (index: number, marker: any) => {
+      return async function (e: any) {
+        const selectedUnit = getSelectedUnit(index);
+        console.log("daasmap handleMouseOverUnitMarker", selectedUnit);
+        !!onMouseOverUnit && onMouseOverUnit(index);
+        updateUnitMarkers(index);
+        if (
+            !!getUnitInfo &&
+            !!selectedUnit &&
+            unitMarkers.current?.length > index
+        ) {
+          const unit = await getUnitInfo(selectedUnit);
+          !!unit &&
+          drawTooltipUnit(marker, mapRef.current, unit);
+        }
+      }
+    }
 
     const handleMouseOverShippingCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {

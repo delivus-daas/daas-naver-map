@@ -1,7 +1,14 @@
 import React from "react";
 
-const BlackContainerClaimed = ({ className }: { className: string }) => (
+const BlackContainerClaimed = ({
+  className,
+  id,
+}: {
+  className: string;
+  id?: string;
+}) => (
   <svg
+    id={id}
     className={className}
     width="44"
     height="57"
