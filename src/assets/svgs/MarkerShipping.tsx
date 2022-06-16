@@ -3,14 +3,14 @@ import React from "react";
 export const ShippingMarker = ({
   id,
   fill = "#6E6EFF",
-  selected = false,
+  selected = 0,
   className,
   opacity = 1,
 }: {
   id?: string;
   fill: string;
   className?: string;
-  selected?: boolean;
+  selected?: number;
   opacity?: number;
 }) => (
   <svg
@@ -26,7 +26,7 @@ export const ShippingMarker = ({
       cx="25"
       cy="25.5"
       r="25"
-      fill={selected ? "#6E6EFF" : "transparent"}
+      fill={selected == 1 ? "#6E6EFF" : "transparent"}
       fill-opacity="0.4"
     />
     <path

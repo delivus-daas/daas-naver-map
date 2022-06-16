@@ -688,7 +688,7 @@ const DaasMap = forwardRef(
               className={"delivery-marker-img"}
               fill={bg}
               opacity={opacity}
-              selected={selected}
+              selected={selected?1:0}
             />
             <div className={"map-delivery-count body1 bold white"}>
               {!delivery.is_return ? 1 : "R1"}
@@ -885,12 +885,7 @@ const DaasMap = forwardRef(
       });
 
       let bg = "var(--greyc4)";
-      let size = 52;
       let className = "";
-      // if (index === selectedDelivery) {
-      //   className = "selected";
-      //   size = 100;
-      // }
       if (complete) {
         bg = "var(--grey96)";
       } else {
@@ -1001,6 +996,12 @@ const DaasMap = forwardRef(
         clusterMembers
       );
 
+      console.log(
+        "daasmap cluster count",
+        shipping_count,
+        selected,
+        return_count
+      );
       const image = $(clusterMarker.getElement()).find(".delivery-marker-img");
       if (return_count > 0) {
         if (shipping_count > 0) {
@@ -1022,12 +1023,12 @@ const DaasMap = forwardRef(
           .find("span.map-delivery-count")
           .text(shipping_count);
       }
-      if(selected) {
-        image.attr("opacity", "1")
-        image.attr("selected", "true")
-      }else{
-        image.attr("opacity", "0.7")
-        image.attr("selected", "false")
+      if (selected) {
+        image.attr("opacity", "1");
+        image.attr("selected", "1");
+      } else {
+        image.attr("opacity", "0.7");
+        image.attr("selected", "0");
       }
     };
 
@@ -1057,12 +1058,12 @@ const DaasMap = forwardRef(
             shippings.length > i &&
             checkShippingIsSelected(shippings[i], selectedSector);
           d.setOptions({ selected });
-          if(selected) {
-            image.attr("opacity", "1")
-            image.attr("selected", "true")
-          }else{
-            image.attr("opacity", "0.7")
-            image.attr("selected", "false")
+          if (selected) {
+            image.attr("opacity", "1");
+            image.attr("selected", "1");
+          } else {
+            image.attr("opacity", "0.7");
+            image.attr("selected", "0");
           }
         });
 
