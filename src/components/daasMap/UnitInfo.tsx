@@ -3,7 +3,6 @@ import "./daasMap.css";
 import { UnitInfoProps } from "./daasMap.type";
 
 const UnitInfo = ({
-  address,
   name,
   num_assigned,
   num_delivery_completed,

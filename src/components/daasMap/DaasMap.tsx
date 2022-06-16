@@ -17,6 +17,7 @@ import EyesSvg from "../../assets/svgs/eyes";
 import MapLocationCompass from "../../assets/svgs/mapLocationCompass";
 import MarkerClustering from "../../marker-tools";
 import "./daasMap.css";
+import { ShippingMarker } from "../../assets/svgs/MarkerShipping";
 import { DeliveryMarker } from "../../assets/svgs/MarkerDeliveryNearest";
 import {
   DaasMapProps,
@@ -418,19 +419,19 @@ const DaasMap = forwardRef(
         unitMarkers.current.push(marker);
 
         window.naver.maps.Event.addListener(
-            marker,
+          marker,
           "click",
           handleClickUnitMarker(index)
         );
 
         window.naver.maps.Event.addListener(
-            marker,
+          marker,
           "mouseover",
           handleMouseOverUnitMarker(index, marker)
         );
 
         window.naver.maps.Event.addListener(
-            marker,
+          marker,
           "mouseout",
           handleMouseOutUnitMarker(index)
         );
@@ -667,11 +668,11 @@ const DaasMap = forwardRef(
         const map: any = mapRef.current;
         let bg = "var(--greyc4)",
           size = 52,
-          className = "",
+          opacity = 0.7,
           selected = checkShippingIsSelected(delivery, selectedSector);
 
         if (selected) {
-          className = "selected";
+          opacity = 1;
         }
         if (delivery.complete) {
           bg = "var(--grey96)";
@@ -679,26 +680,25 @@ const DaasMap = forwardRef(
           //only return
           bg = "var(--errorActive)";
         }
+
         const icon = (
-          <div
-            id={"d-marker" + index}
-            className={"shipping-marker " + className}
-          >
-            <DeliveryMarker className={"delivery-marker-img"} fill={bg} />
-            {!delivery.is_return ? (
-              <>
-                <div className={"map-delivery-count body1 bold white"}>{1}</div>
-              </>
-            ) : (
-              <div className={"map-delivery-count body1 bold white"}>
-                {"R1"}
-              </div>
-            )}
+          <div id={"d-marker" + index} className={"shipping-marker "}>
+            <ShippingMarker
+              id={"d-marker-img" + index}
+              className={"delivery-marker-img"}
+              fill={bg}
+              opacity={opacity}
+              selected={selected}
+            />
+            <div className={"map-delivery-count body1 bold white"}>
+              {!delivery.is_return ? 1 : "R1"}
+            </div>
           </div>
         );
         var markerOptions = {
           index,
           selected,
+          is_return: delivery.is_return,
           position,
           map: isPositionInBounds(position, map) ? map : null,
           icon: {
@@ -909,7 +909,7 @@ const DaasMap = forwardRef(
           id={"shipping-cluster-id"}
           className={"shipping-marker " + className}
         >
-          <DeliveryMarker className={"delivery-marker-img"} fill={bg} />
+          <ShippingMarker className={"delivery-marker-img"} fill={bg} />
           {shipping_count > 0 ? (
             <>
               <span className={"map-delivery-count body1 bold white"}>
@@ -1025,7 +1025,13 @@ const DaasMap = forwardRef(
           .find("span.map-delivery-count")
           .text(shipping_count);
       }
-      container.toggleClass("selected", selected);
+      if(selected) {
+        image.attr("opacity", "1")
+        image.attr("selected", "true")
+      }else{
+        image.attr("opacity", "0.7")
+        image.attr("selected", "false")
+      }
     };
 
     /** update style of marker if its selected or not **/
@@ -1048,13 +1054,19 @@ const DaasMap = forwardRef(
       //update delivery marker style when selected marker change
       shippingMarkers.current &&
         shippingMarkers.current.forEach((d, i) => {
-          const markerCntr = $("#d-marker" + i);
+          const image = $(d.getElement()).find($("ShippingMarker"));
           const selected =
             shippings &&
             shippings.length > i &&
             checkShippingIsSelected(shippings[i], selectedSector);
           d.setOptions({ selected });
-          markerCntr.toggleClass("selected", selected);
+          if(selected) {
+            image.attr("opacity", "1")
+            image.attr("selected", "true")
+          }else{
+            image.attr("opacity", "0.7")
+            image.attr("selected", "false")
+          }
         });
 
       clusterMembers &&
@@ -1175,7 +1187,6 @@ const DaasMap = forwardRef(
       async (clusterMembers: Overlaped[]) => {
         const selectedShippingList = getSelectedShippings(clusterMembers);
         const selectedSector = getSelectedSector(selectedShippingList);
-        console.log("map handleClickShippingCluster", shippingGroupRef.current);
         if (onClickOverlappedShipping)
           onClickOverlappedShipping(
             selectedShippingList,
@@ -1188,38 +1199,34 @@ const DaasMap = forwardRef(
 
     const handleClickUnitMarker = (index: number) => {
       return function (e: any) {
-        console.log("daasmap handleClickUnitMarker");
         const selectedUnit = getSelectedUnit(index);
         !!onClickUnit && onClickUnit(index, selectedUnit);
-      }
+      };
     };
 
     const handleMouseOutUnitMarker = (index: number) => {
       return function (e: any) {
-        console.log("daasmap handleMouseOutUnitMarker");
         !!onMouseOutUnit && onMouseOutUnit(index);
         updateUnitMarkers(-1);
         closeWindowTooltip();
-      }
+      };
     };
 
     const handleMouseOverUnitMarker = (index: number, marker: any) => {
       return async function (e: any) {
         const selectedUnit = getSelectedUnit(index);
-        console.log("daasmap handleMouseOverUnitMarker", selectedUnit);
         !!onMouseOverUnit && onMouseOverUnit(index);
         updateUnitMarkers(index);
         if (
-            !!getUnitInfo &&
-            !!selectedUnit &&
-            unitMarkers.current?.length > index
+          !!getUnitInfo &&
+          !!selectedUnit &&
+          unitMarkers.current?.length > index
         ) {
           const unit = await getUnitInfo(selectedUnit);
-          !!unit &&
-          drawTooltipUnit(marker, mapRef.current, unit);
+          !!unit && drawTooltipUnit(marker, mapRef.current, unit);
         }
-      }
-    }
+      };
+    };
 
     const handleMouseOverShippingCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {
@@ -1230,12 +1237,6 @@ const DaasMap = forwardRef(
             selectedSector,
             selectedShippingList,
             clusterMembers
-          );
-          console.log(
-            "map handleMouseOverShippingCluster",
-            clusterMembers.length,
-            selectedShippingList,
-            selectedSector
           );
           redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
