@@ -690,9 +690,9 @@ const DaasMap = forwardRef(
               opacity={opacity}
               selected={selected ? 1 : 0}
             />
-            <div className={"map-delivery-count body1 bold white"}>
+            <span className={"map-delivery-count body1 bold white"}>
               {!delivery.is_return ? 1 : "R1"}
-            </div>
+            </span>
           </div>
         );
         var markerOptions = {
@@ -872,8 +872,11 @@ const DaasMap = forwardRef(
     const createClusterShipping = (markers: any[]) => {
       const icon = (
         <div id={"d-marker"} className={"shipping-marker "}>
-          <ShippingMarker id={"d-marker-img"} className={"delivery-marker-img"} />
-          <div className={"map-delivery-count body1 bold white"}>{""}</div>
+          <ShippingMarker
+            id={"d-marker-img"}
+            className={"delivery-marker-img"}
+          />
+          <span className={"map-delivery-count body1 bold white"}>{""}</span>
         </div>
       );
 
@@ -974,11 +977,11 @@ const DaasMap = forwardRef(
           .text(shipping_count);
       }
       if (selected) {
-        image.attr("opacity", "1");
-        image.attr("selected", "1");
+        image.attr("opacity", 1);
+        image.attr("selected", 1);
       } else {
-        image.attr("opacity", "0.7");
-        image.attr("selected", "0");
+        image.attr("opacity", 0.7);
+        image.attr("selected", 0);
       }
     };
 

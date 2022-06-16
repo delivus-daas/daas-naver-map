@@ -2,7 +2,7 @@ import React from "react";
 
 export const ShippingMarker = ({
   id,
-  fill = "#6E6EFF",
+  fill = "#141E28",
   selected = 0,
   className,
   opacity = 1,
