@@ -3,14 +3,14 @@ import React from "react";
 export const ShippingMarker = ({
   id,
   fill = "#141E28",
-  selected = 0,
+  selected,
   className,
-  opacity = 1,
+  opacity = 0.7,
 }: {
   id?: string;
   fill?: string;
   className?: string;
-  selected?: number;
+  selected?: boolean;
   opacity?: number;
 }) => (
   <svg
@@ -22,13 +22,9 @@ export const ShippingMarker = ({
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle
-      cx="25"
-      cy="25.5"
-      r="25"
-      fill={selected == 1 ? "#6E6EFF" : "transparent"}
-      fill-opacity="0.4"
-    />
+    {selected && (
+      <circle cx="25" cy="25.5" r="25" fill={"#6E6EFF"} fill-opacity="0.4" />
+    )}
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
