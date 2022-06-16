@@ -1198,7 +1198,7 @@ const DaasMap = forwardRef(
       return function (e: any) {
         console.log("daasmap handleMouseOutUnitMarker");
         !!onMouseOutUnit && onMouseOutUnit(index);
-        updateUnitMarkers(index);
+        updateUnitMarkers(-1);
         closeWindowTooltip();
       }
     };
