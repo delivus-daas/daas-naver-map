@@ -1002,9 +1002,6 @@ const DaasMap = forwardRef(
       );
 
       const image = $(clusterMarker.getElement()).find(".delivery-marker-img");
-      const container = $(clusterMarker.getElement()).find(
-        "#shipping-cluster-id"
-      );
       if (return_count > 0) {
         if (shipping_count > 0) {
           image.attr("fill", "var(--yellow)");
