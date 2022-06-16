@@ -1,7 +1,7 @@
 /// <reference types="react" />
 export declare const ShippingMarker: ({ id, fill, selected, className, opacity, }: {
     id?: string | undefined;
-    fill: string;
+    fill?: string | undefined;
     className?: string | undefined;
     selected?: number | undefined;
     opacity?: number | undefined;

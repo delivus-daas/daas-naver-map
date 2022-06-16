@@ -688,7 +688,7 @@ const DaasMap = forwardRef(
               className={"delivery-marker-img"}
               fill={bg}
               opacity={opacity}
-              selected={selected?1:0}
+              selected={selected ? 1 : 0}
             />
             <div className={"map-delivery-count body1 bold white"}>
               {!delivery.is_return ? 1 : "R1"}
@@ -870,57 +870,10 @@ const DaasMap = forwardRef(
     };
 
     const createClusterShipping = (markers: any[]) => {
-      let shipping_count = 0,
-        return_count = 0,
-        complete = false;
-      markers.forEach((m, index) => {
-        if (m.complete) {
-          complete = m.complete;
-        }
-        if (m.is_return) {
-          return_count++;
-        } else {
-          shipping_count++;
-        }
-      });
-
-      let bg = "var(--greyc4)";
-      let className = "";
-      if (complete) {
-        bg = "var(--grey96)";
-      } else {
-        if (return_count > 0) {
-          if (shipping_count <= 0) {
-            //only return
-            bg = "var(--errorActive)";
-          } else {
-            //mixed
-            bg = "var(--yellow)";
-          }
-        }
-      }
       const icon = (
-        <div
-          id={"shipping-cluster-id"}
-          className={"shipping-marker " + className}
-        >
-          <ShippingMarker className={"delivery-marker-img"} fill={bg} />
-          {shipping_count > 0 ? (
-            <>
-              <span className={"map-delivery-count body1 bold white"}>
-                {shipping_count + "FFF"}
-              </span>
-              {return_count > 0 && (
-                <span className={"map-delivery-return-count body1 bold white"}>
-                  {return_count}
-                </span>
-              )}
-            </>
-          ) : (
-            <span className={"map-delivery-count body1 bold white"}>
-              {"R" + return_count}
-            </span>
-          )}
+        <div id={"d-marker"} className={"shipping-marker "}>
+          <ShippingMarker id={"d-marker-img"} className={"delivery-marker-img"} />
+          <div className={"map-delivery-count body1 bold white"}>{""}</div>
         </div>
       );
 
@@ -1002,16 +955,13 @@ const DaasMap = forwardRef(
         selected,
         return_count
       );
-      const image = $(clusterMarker.getElement()).find(".delivery-marker-img");
+      const image = $(clusterMarker.getElement()).find($("ShippingMarker"));
       if (return_count > 0) {
         if (shipping_count > 0) {
           image.attr("fill", "var(--yellow)");
           $(clusterMarker.getElement())
             .find("span.map-delivery-count")
-            .text(shipping_count);
-          $(clusterMarker.getElement())
-            .find("span.map-delivery-return-count")
-            .text(return_count);
+            .text(return_count + shipping_count);
         } else {
           image.attr("fill", "var(--errorActive)");
           $(clusterMarker.getElement())

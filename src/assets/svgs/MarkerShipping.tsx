@@ -8,7 +8,7 @@ export const ShippingMarker = ({
   opacity = 1,
 }: {
   id?: string;
-  fill: string;
+  fill?: string;
   className?: string;
   selected?: number;
   opacity?: number;
