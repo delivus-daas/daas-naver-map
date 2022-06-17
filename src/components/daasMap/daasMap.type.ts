@@ -39,13 +39,13 @@ export type DaasMapProps = {
 };
 
 export interface UnitInfoProps extends MapUnitType {
-  num_assigned: number;
-  num_delivery_completed: number;
-  num_out_for_delivery: number;
-  num_ready_for_delivery: number;
-  num_ready_for_return_hub: number;
-  num_ready_for_return_unit: number;
   num_total: number;
+  num_unitarrived: number;
+  num_claimed: number;
+  num_out_for_delivery: number;
+  num_out_return_unit_available: number;
+  num_out_delivery_completed: number;
+  num_unit_returned: 0;
   index?: number;
 }
 
