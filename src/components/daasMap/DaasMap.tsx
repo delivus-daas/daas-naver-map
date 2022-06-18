@@ -1199,7 +1199,7 @@ const DaasMap = forwardRef(
           onMouseOverShippingCluster &&
             onMouseOverShippingCluster(selectedShippingList, selectedSector);
           if (!!getSectorInfo) {
-            const sector = await getSectorInfo(selectedSector);
+            const sector = await getSectorInfo(selectedSector, shippingGroupRef.current);
 
             if (shippingGroupRef.current == "shipping") {
               drawTooltipShippings(

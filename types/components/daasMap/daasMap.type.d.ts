@@ -27,7 +27,7 @@ export declare type DaasMapProps = {
     onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
     onClickOverlappedShipping?: (shippings: MapShippingType[], sector: MapSectorType, metric: MetricType) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: MapSectorType) => void;
-    getSectorInfo?: (sector: MapSectorType) => Promise<SectorInfoProps | undefined>;
+    getSectorInfo?: (sector: MapSectorType, metric: MetricType) => Promise<SectorInfoProps | undefined>;
     getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };

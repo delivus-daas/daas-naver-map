@@ -32,7 +32,8 @@ export type DaasMapProps = {
     sector: MapSectorType
   ) => void;
   getSectorInfo?: (
-    sector: MapSectorType
+    sector: MapSectorType,
+    metric: MetricType
   ) => Promise<SectorInfoProps | undefined>;
   getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
   onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
