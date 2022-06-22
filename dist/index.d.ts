@@ -6,8 +6,6 @@ declare type Overlaped = {
 };
 declare type DaasMapProps = {
     currentPosition?: GeolocationPosition;
-    containers?: MapContainerType[];
-    deliveries?: MapDeliveryType[];
     isContainerVisible?: boolean;
     isUnitVisible?: boolean;
     isShippingVisible?: boolean;
@@ -15,9 +13,8 @@ declare type DaasMapProps = {
     isVisibleMarkers?: boolean;
     compassSupported?: boolean;
     isShowInfoWindow?: boolean;
-    children?: JSX.Element | JSX.Element[];
     selectedDelivery?: number;
-    selectedContainer?: any[];
+    children?: JSX.Element | JSX.Element[];
     onClickDelivery?: (item: number) => void;
     onClickShipping?: (item: number) => void;
     onMouseOverShipping?: (item: number) => void;
@@ -26,7 +23,7 @@ declare type DaasMapProps = {
     onClickContainer?: (item: number) => void;
     onClickUnit?: (item: number, unit?: MapUnitType) => void;
     onClickMap?: () => void;
-    onClickOverlappedContainer?: (overlaped: Overlaped[]) => void;
+    onClickContainerCluster?: (containers: MapContainerType[]) => void;
     onClickOverlappedShipping?: (shippings: MapShippingType[], sector: MapSectorType, metric: MetricType) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: MapSectorType) => void;
     getSectorInfo?: (sector: MapSectorType, metric: MetricType) => Promise<SectorInfoProps | undefined>;
@@ -89,16 +86,6 @@ declare type MapUnitType = {
         };
     };
     sector_codes: string;
-};
-declare type MapDeliveryType = {
-    address?: {
-        lat: string;
-        lng: string;
-    };
-    uuid: string;
-    complete: boolean;
-    shipping_count: number;
-    return_count: number;
 };
 declare type MetricType = "area" | "sector" | "shipping";
 declare type MapSectorType = {
