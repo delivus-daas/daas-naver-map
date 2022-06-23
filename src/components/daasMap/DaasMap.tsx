@@ -96,7 +96,6 @@ const DaasMap = forwardRef(
       const selected: any[] = [];
       clusters &&
         clusters.forEach((m) => {
-          console.log("getSelectedShippings", data, m.index);
           if (data && m.index >= 0 && data.length > m.index) {
             selected.push(data[m.index]);
           }
@@ -106,7 +105,6 @@ const DaasMap = forwardRef(
 
     const getSelectedSector = (shippings: MapShippingType[]) => {
       let selectedSector: any = undefined;
-      console.log("selectedshippinglist", shippings);
       shippings.every((s) => {
         if (!!s && (!!s.designated_sector || !!s.address?.sector)) {
           selectedSector = s.designated_sector || s.address?.sector;
@@ -453,11 +451,11 @@ const DaasMap = forwardRef(
           index,
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          icon: {
-            content: [renderToStaticMarkup(icon)].join(""),
-            size: new window.naver.maps.Size(size, size),
-            anchor: new window.naver.maps.Point(size / 2, size / 2),
-          },
+          // icon: {
+          //   content: [renderToStaticMarkup(icon)].join(""),
+          //   size: new window.naver.maps.Size(size, size),
+          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
+          // },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         unitMarkers.current.push(marker);
@@ -544,11 +542,11 @@ const DaasMap = forwardRef(
           assigned: container.container_class !== "WHITE",
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          icon: {
-            content: [renderToStaticMarkup(icon)].join(""),
-            size: new window.naver.maps.Size(size, size),
-            anchor: new window.naver.maps.Point(size / 2, size / 2),
-          },
+          // icon: {
+          //   content: [renderToStaticMarkup(icon)].join(""),
+          //   size: new window.naver.maps.Size(size, size),
+          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
+          // },
         };
         const orderMarker = new window.naver.maps.Marker(markerOptions);
         containerMarkers.current.push(orderMarker);
@@ -630,11 +628,11 @@ const DaasMap = forwardRef(
         var markerOptions = {
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          icon: {
-            content: [renderToStaticMarkup(icon)].join(""),
-            size: new window.naver.maps.Size(size, size),
-            anchor: new window.naver.maps.Point(size / 2 - 4, size - 18), //가운데 아래
-          },
+          // icon: {
+          //   content: [renderToStaticMarkup(icon)].join(""),
+          //   size: new window.naver.maps.Size(size, size),
+          //   anchor: new window.naver.maps.Point(size / 2 - 4, size - 18), //가운데 아래
+          // },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         deliveryMarkers.current.push(marker);
@@ -684,11 +682,11 @@ const DaasMap = forwardRef(
         var markerOptions = {
           position,
           map: isPositionInBounds(position, map) ? map : null,
-          icon: {
-            content: [renderToStaticMarkup(icon)].join(""),
-            size: new window.naver.maps.Size(size, size),
-            anchor: new window.naver.maps.Point(size / 2, size),
-          },
+          // icon: {
+          //   content: [renderToStaticMarkup(icon)].join(""),
+          //   size: new window.naver.maps.Size(size, size),
+          //   anchor: new window.naver.maps.Point(size / 2, size),
+          // },
         };
         if (0 === index) {
           map.setCenter(position);
@@ -728,17 +726,17 @@ const DaasMap = forwardRef(
             </span>
           </div>
         );
-        var markerOptions = {
+        const markerOptions = {
           index,
           selected: false,
           is_return: delivery.is_return,
           position,
           map: isPositionInBounds(position, map) ? map : null,
-          icon: {
-            content: [renderToStaticMarkup(icon)].join(""),
-            size: new window.naver.maps.Size(size, size),
-            anchor: new window.naver.maps.Point(size / 2, size / 2),
-          },
+          // icon: {
+          //   content: [renderToStaticMarkup(icon)].join(""),
+          //   size: new window.naver.maps.Size(size, size),
+          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
+          // },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         shippingMarkers.current.push(marker);
@@ -877,7 +875,7 @@ const DaasMap = forwardRef(
         markers: markers,
         disableClickZoom: false,
         gridSize: 120,
-        icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
+        // icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
         indexGenerator: [6, 11, 30, 40, 50],
         stylingFunction: styleClusterContainer,
       });
@@ -927,8 +925,8 @@ const DaasMap = forwardRef(
         markers: markers,
         disableClickZoom: false,
         gridSize: 5,
-        icons: [htmlMarker5],
-        indexGenerator: [20],
+        // icons: [htmlMarker5],
+        // indexGenerator: [20],
         stylingFunction: styleClusterShipping,
         onClusterClick: handleClickShippingCluster,
         onClusterMouseOver: handleMouseOverShippingCluster,
@@ -1271,8 +1269,8 @@ const DaasMap = forwardRef(
             shippingsRef.current
           );
           const selectedSector = getSelectedSector(selectedShippingList);
-          updateShippingMarkers(selectedSector, clusterMembers);
-          redrawCluster(shippingClustering.current, shippingMarkers.current);
+          // updateShippingMarkers(selectedSector, clusterMembers);
+          // redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
             onMouseOverShippingCluster(selectedShippingList, selectedSector);
           if (shippingGroupRef.current == "shipping") {
