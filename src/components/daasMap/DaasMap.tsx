@@ -106,6 +106,7 @@ const DaasMap = forwardRef(
 
     const getSelectedSector = (shippings: MapShippingType[]) => {
       let selectedSector: any = undefined;
+      console.log("selectedshippinglist", shippings);
       shippings.every((s) => {
         if (!!s && (!!s.designated_sector || !!s.address?.sector)) {
           selectedSector = s.designated_sector || s.address?.sector;
@@ -223,6 +224,7 @@ const DaasMap = forwardRef(
           if (deliveries && deliveries?.length > 0 && !!window.naver.maps) {
             let recommendIdx = -1;
             deliveries.map((d, index) => {
+              console.log("drawPreviewMarkers", d);
               if (!d.complete && recommendIdx === -1) {
                 recommendIdx = index;
               }
@@ -1264,7 +1266,10 @@ const DaasMap = forwardRef(
     const handleMouseOverShippingCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {
         if (clusterMembers && clusterMembers.length > 0) {
-          const selectedShippingList = getSelectedShippings(clusterMembers);
+          const selectedShippingList = getSelectedShippings(
+            clusterMembers,
+            shippingsRef.current
+          );
           const selectedSector = getSelectedSector(selectedShippingList);
           updateShippingMarkers(selectedSector, clusterMembers);
           redrawCluster(shippingClustering.current, shippingMarkers.current);
