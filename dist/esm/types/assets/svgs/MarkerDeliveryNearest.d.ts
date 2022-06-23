@@ -1,6 +1,5 @@
 /// <reference types="react" />
-export declare const DeliveryMarker: ({ fill, center, className, }: {
+export declare const DeliveryMarker: ({ fill, style, }: {
     fill: string;
-    center?: boolean | undefined;
-    className?: string | undefined;
+    style?: any;
 }) => JSX.Element;

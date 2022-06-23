@@ -125,6 +125,7 @@
 }
 
 .delivery-marker {
+    background: rgba(0,0,0,0.2);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -170,6 +171,14 @@
     width: 42px;
 }
 
+.map-delivery-center {
+    height: 11px;
+    width: 11px;
+    margin-bottom: 5px;
+    background: white;
+    border-radius: 11px;
+    position: absolute;
+}
 
 .map-delivery-count {
     position: absolute;

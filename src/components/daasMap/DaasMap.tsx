@@ -340,8 +340,9 @@ const DaasMap = forwardRef(
           if (selectedDelivery == i) {
             map.setCenter(d.position);
           }
-          const selectedMarker = $("#d-marker" + i);
+          const selectedMarker = $(d.getElement()).find("#d-marker" + i);
           selectedMarker.toggleClass("selected", i === selectedDelivery);
+          console.log("selectedDelivery", i === selectedDelivery, d);
         });
     }, [selectedDelivery]);
 
@@ -451,11 +452,11 @@ const DaasMap = forwardRef(
           index,
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          // icon: {
-          //   content: [renderToStaticMarkup(icon)].join(""),
-          //   size: new window.naver.maps.Size(size, size),
-          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
-          // },
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(size, size),
+            anchor: new window.naver.maps.Point(size / 2, size / 2),
+          },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         unitMarkers.current.push(marker);
@@ -542,11 +543,11 @@ const DaasMap = forwardRef(
           assigned: container.container_class !== "WHITE",
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          // icon: {
-          //   content: [renderToStaticMarkup(icon)].join(""),
-          //   size: new window.naver.maps.Size(size, size),
-          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
-          // },
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(size, size),
+            anchor: new window.naver.maps.Point(size / 2, size / 2),
+          },
         };
         const orderMarker = new window.naver.maps.Marker(markerOptions);
         containerMarkers.current.push(orderMarker);
@@ -575,12 +576,9 @@ const DaasMap = forwardRef(
         );
         const map: any = mapRef.current;
         let bg = "var(--primary)";
-        let size = 52;
+        let width = 26;
+        let height = 30;
         let className = "";
-        if (index === selectedDeliveryIdx.current) {
-          className = "selected";
-          size = 100;
-        }
         if (delivery.complete) {
           bg = "var(--grey96)";
         } else {
@@ -599,40 +597,37 @@ const DaasMap = forwardRef(
             id={"d-marker" + index}
             className={"delivery-marker body1 bold white " + className}
           >
-            <DeliveryMarker
-              className={"delivery-marker-img"}
-              center={index === recommendIdx}
-              fill={bg}
-            />
-            {index != recommendIdx &&
-              (delivery.shipping_count > 0 ? (
-                <>
-                  <div className={"map-delivery-count bold white"}>
-                    {delivery.shipping_count}
-                  </div>
-                  {delivery.return_count > 0 && (
-                    <span className={"map-delivery-return-count bold white"}>
-                      {delivery.return_count}
-                    </span>
-                  )}
-                </>
-              ) : (
-                delivery.return_count > 0 && (
-                  <div className={"map-delivery-count bold white"}>
-                    {"R" + delivery.return_count}
-                  </div>
-                )
-              ))}
+            <DeliveryMarker style={{ width, height }} fill={bg} />
+            {index == recommendIdx ? (
+              <div className={"map-delivery-center"} />
+            ) : delivery.shipping_count > 0 ? (
+              <>
+                <div className={"map-delivery-count bold white"}>
+                  {delivery.shipping_count}
+                </div>
+                {delivery.return_count > 0 && (
+                  <span className={"map-delivery-return-count bold white"}>
+                    {delivery.return_count}
+                  </span>
+                )}
+              </>
+            ) : (
+              delivery.return_count > 0 && (
+                <div className={"map-delivery-count bold white"}>
+                  {"R" + delivery.return_count}
+                </div>
+              )
+            )}
           </div>
         );
         var markerOptions = {
           position,
           map: isPositionInBounds(position, map) && visible ? map : null,
-          // icon: {
-          //   content: [renderToStaticMarkup(icon)].join(""),
-          //   size: new window.naver.maps.Size(size, size),
-          //   anchor: new window.naver.maps.Point(size / 2 - 4, size - 18), //가운데 아래
-          // },
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(width, height),
+            anchor: new window.naver.maps.Point(width / 2, height), //가운데 아래
+          },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         deliveryMarkers.current.push(marker);
@@ -660,33 +655,33 @@ const DaasMap = forwardRef(
           delivery.address.lat,
           delivery.address.lng
         );
-        let size = 52;
+        let width = 26,
+          height = 30;
         let className = "";
         if (index === recommendIdx) {
           className = "selected";
-          size = 100;
         }
         const icon = (
           <div
             id={"d-marker" + index}
             className={"delivery-marker " + className}
           >
-            <DeliveryMarker
-              className={"delivery-marker-img"}
-              center={index === recommendIdx}
-              fill={"var(--dark)"}
-            />
-            {index != recommendIdx && <EyesSvg className={"eye-img"} />}
+            <DeliveryMarker style={{ width, height }} fill={"var(--dark)"} />
+            {index == recommendIdx ? (
+              <div className={"map-delivery-center"} />
+            ) : (
+              <EyesSvg className={"eye-img"} />
+            )}
           </div>
         );
         var markerOptions = {
           position,
           map: isPositionInBounds(position, map) ? map : null,
-          // icon: {
-          //   content: [renderToStaticMarkup(icon)].join(""),
-          //   size: new window.naver.maps.Size(size, size),
-          //   anchor: new window.naver.maps.Point(size / 2, size),
-          // },
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(width, height),
+            anchor: new window.naver.maps.Point(width / 2, height),
+          },
         };
         if (0 === index) {
           map.setCenter(position);
@@ -732,11 +727,11 @@ const DaasMap = forwardRef(
           is_return: delivery.is_return,
           position,
           map: isPositionInBounds(position, map) ? map : null,
-          // icon: {
-          //   content: [renderToStaticMarkup(icon)].join(""),
-          //   size: new window.naver.maps.Size(size, size),
-          //   anchor: new window.naver.maps.Point(size / 2, size / 2),
-          // },
+          icon: {
+            content: [renderToStaticMarkup(icon)].join(""),
+            size: new window.naver.maps.Size(size, size),
+            anchor: new window.naver.maps.Point(size / 2, size / 2),
+          },
         };
         const marker = new window.naver.maps.Marker(markerOptions);
         shippingMarkers.current.push(marker);
@@ -875,7 +870,7 @@ const DaasMap = forwardRef(
         markers: markers,
         disableClickZoom: false,
         gridSize: 120,
-        // icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
+        icons: [htmlMarker5, htmlMarker10, htmlMarker30, htmlMarker40],
         indexGenerator: [6, 11, 30, 40, 50],
         stylingFunction: styleClusterContainer,
       });
