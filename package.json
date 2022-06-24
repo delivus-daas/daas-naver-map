@@ -1,6 +1,6 @@
 {
   "name": "daas-naver-map",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Naver map component with, markers and clustering feature which is used in hub and flex app",
   "author": "Chimaa G",
   "license": "MIT",
