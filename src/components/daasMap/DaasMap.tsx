@@ -244,7 +244,7 @@ const DaasMap = forwardRef(
         mapRef.current.setCursor("pointer");
         createClusterContainer(containerMarkers.current);
         createClusterDelivery(deliveryMarkers.current);
-        createClusterShipping(shippingMarkers.current);
+        // createClusterShipping(shippingMarkers.current);
 
         window.naver.maps.Event.addListener(
           mapRef.current,
@@ -256,8 +256,8 @@ const DaasMap = forwardRef(
           mapRef.current,
           "zoom_changed",
           function () {
+            //containers and shippings use clustering even if map is zoomed maximum. clustering does this feature
             showMarkersInBounds(unitMarkers.current, mapRef.current);
-            showMarkersInBounds(containerMarkers.current, mapRef.current);
             showMarkersInBounds(deliveryMarkers.current, mapRef.current);
             showMarkersInBounds(shippingMarkers.current, mapRef.current);
             showMarkersInBounds(deliveryPreviewMarkers.current, mapRef.current);
@@ -269,7 +269,6 @@ const DaasMap = forwardRef(
           "dragend",
           function () {
             showMarkersInBounds(unitMarkers.current, mapRef.current);
-            showMarkersInBounds(containerMarkers.current, mapRef.current);
             showMarkersInBounds(deliveryMarkers.current, mapRef.current);
             showMarkersInBounds(shippingMarkers.current, mapRef.current);
             showMarkersInBounds(deliveryPreviewMarkers.current, mapRef.current);
@@ -283,7 +282,7 @@ const DaasMap = forwardRef(
         //if my my position marker isn't initialized then create one.
         drawMarkerMyPosition(currentPosition);
       } else {
-        //if my my position marker is initialized then change its position.
+        //if my position marker is initialized then change its position.
         changeCurrentPosition(currentPosition);
       }
     }, [currentPosition]);
@@ -501,13 +500,6 @@ const DaasMap = forwardRef(
           Svg,
           className = "";
 
-        // const selected =
-        //   selectedContainer &&
-        //   selectedContainer.filter((c) => c.uuid === container.uuid).length > 0;
-        // if (selected) {
-        //   size = 64;
-        //   className = "selected";
-        // }
         switch (container.status) {
           case "CLAIMED":
             Svg =
@@ -711,7 +703,7 @@ const DaasMap = forwardRef(
         const icon = (
           <div id={"d-marker" + index} className={"shipping-marker "}>
             <ShippingMarker
-              id={"ShippingMarker" + index}
+              id={"d-marker-img"}
               className={"delivery-marker-img"}
               fill={bg}
               opacity={opacity}
@@ -739,12 +731,19 @@ const DaasMap = forwardRef(
         window.naver.maps.Event.addListener(
           marker,
           "click",
-          handleClickShippingMarker(index)
+          handleClickShippingMarker(marker)
         );
+
         window.naver.maps.Event.addListener(
           marker,
-          "mouseenter mouseleave",
-          handleMouseOverShippingMarker(index)
+          "mouseover",
+          handleMouseOverShippingMarker(marker)
+        );
+
+        window.naver.maps.Event.addListener(
+          marker,
+          "mouseout",
+          handleMouseOutShippingMarker(marker)
         );
       }
     };
@@ -920,8 +919,8 @@ const DaasMap = forwardRef(
         markers: markers,
         disableClickZoom: false,
         gridSize: 5,
-        // icons: [htmlMarker5],
-        // indexGenerator: [20],
+        icons: [htmlMarker5],
+        indexGenerator: [20],
         stylingFunction: styleClusterShipping,
         onClusterClick: handleClickShippingCluster,
         onClusterMouseOver: handleMouseOverShippingCluster,
@@ -978,10 +977,23 @@ const DaasMap = forwardRef(
       const { shipping_count, selected, return_count } = calculateShippingCount(
         clusterMembers
       );
+      updateShippingMarker(
+        clusterMarker,
+        selected,
+        return_count,
+        shipping_count
+      );
+    };
 
+    const updateShippingMarker = (
+      clusterMarker: any,
+      selected: boolean,
+      return_count?: number,
+      shipping_count?: number
+    ) => {
       const image = $(clusterMarker.getElement()).find("#d-marker-img");
-      if (return_count > 0) {
-        if (shipping_count > 0) {
+      if (return_count && return_count > 0) {
+        if (shipping_count && shipping_count > 0) {
           const icon = (
             <ShippingMarker
               fill={"var(--yellow)"}
@@ -990,6 +1002,7 @@ const DaasMap = forwardRef(
             />
           );
           image.replaceWith($([renderToStaticMarkup(icon)].join("")));
+          image.toggleClass("selected", selected);
           $(clusterMarker.getElement())
             .find("span.map-delivery-count")
             .text(return_count + shipping_count);
@@ -1002,6 +1015,7 @@ const DaasMap = forwardRef(
             />
           );
           image.replaceWith($([renderToStaticMarkup(icon)].join("")));
+          image.toggleClass("selected", selected);
           $(clusterMarker.getElement())
             .find("span.map-delivery-count")
             .text("R" + return_count);
@@ -1011,9 +1025,10 @@ const DaasMap = forwardRef(
           <ShippingMarker opacity={selected ? 1 : 0.7} selected={selected} />
         );
         image.replaceWith($([renderToStaticMarkup(icon)].join("")));
+        image.toggleClass("selected", selected);
         $(clusterMarker.getElement())
           .find("span.map-delivery-count")
-          .text(shipping_count);
+          .text(shipping_count || "");
       }
     };
 
@@ -1041,19 +1056,16 @@ const DaasMap = forwardRef(
         });
     };
 
-    const updateShippingMarkers = (
-      selectedSector?: SectorInfoProps,
-      clusterMembers?: any[]
-    ) => {
+    const updateShippingMarkers = (selectedSector?: SectorInfoProps) => {
       const shippings = shippingsRef.current;
+      let shipping_count = 0,
+        return_count = 0;
       //update delivery marker style when selected marker change
       shippingMarkers.current &&
-        shippingMarkers.current.forEach((d, index) => {
-          const i = d.index;
-          const image = document.querySelector("#ShippingMarker" + d.index);
+        shippingMarkers.current.forEach((d, i) => {
           let selected = false;
           if (
-            shippingGroupRef.current !== "shipping" &&
+            // shippingGroupRef.current !== "shipping" &&
             !!shippings &&
             shippings.length > i
           ) {
@@ -1061,28 +1073,23 @@ const DaasMap = forwardRef(
               shippings[d.index],
               selectedSector
             );
+
+            if (shippings[d.index].is_return) {
+              return_count = 1;
+            } else {
+              shipping_count = 1;
+            }
           }
-          d.setOptions({ selected });
-          if (selected) {
-            !!image && image.setAttribute("opacity", "1");
-            !!image && image.setAttribute("selected", "1");
-          } else {
-            !!image && image.setAttribute("opacity", "0.7");
-            !!image && image.setAttribute("selected", "0");
-          }
+          updateShippingMarker(d, selected, return_count, shipping_count);
         });
 
-      if (shippingGroupRef.current === "shipping") {
-        clusterMembers &&
-          clusterMembers.forEach((marker) => {
-            const image = document.querySelector(
-              "#ShippingMarker" + marker.index
-            );
-            !!image && image.setAttribute("opacity", "1");
-            !!image && image.setAttribute("selected", "1");
-            marker.setOptions({ selected: true });
-          });
-      }
+      // if (shippingGroupRef.current === "shipping") {
+      //   clusterMembers &&
+      //     clusterMembers.forEach((marker) => {
+      //       styleClusterShipping(marker, 1, [marker]);
+      //       marker.setOptions({ selected: true });
+      //     });
+      // }
     };
 
     /** Calculation counts used in clusters **/
@@ -1166,18 +1173,6 @@ const DaasMap = forwardRef(
       };
     }
 
-    function handleClickShippingMarker(delivery: number) {
-      return function (e: any) {
-        !!onClickShipping && onClickShipping(delivery);
-      };
-    }
-
-    function handleMouseOverShippingMarker(delivery: number) {
-      return function (e: any) {
-        !!onMouseOverShipping && onMouseOverShipping(delivery);
-      };
-    }
-
     function handleClickContainerMarker(index: number) {
       return function (e: any) {
         !!onClickContainer && onClickContainer(index);
@@ -1186,8 +1181,8 @@ const DaasMap = forwardRef(
 
     const handleMouseOutShippingCluster = useCallback(
       (clusterMembers: Overlaped[]) => {
-        // updateShippingMarkers();
-        // redrawCluster(shippingClustering.current, shippingMarkers.current);
+        updateShippingMarkers();
+        redrawCluster(shippingClustering.current, shippingMarkers.current);
         closeWindowTooltip();
         onMouseOutShippingCluster && onMouseOutShippingCluster(clusterMembers);
       },
@@ -1225,6 +1220,12 @@ const DaasMap = forwardRef(
       []
     );
 
+    function handleClickShippingMarker(marker: any) {
+      return function (e: any) {
+        handleClickShippingCluster([marker]);
+      };
+    }
+
     const handleClickUnitMarker = (index: number) => {
       return function (e: any) {
         const selectedUnit = getSelectedUnit(index);
@@ -1256,6 +1257,18 @@ const DaasMap = forwardRef(
       };
     };
 
+    const handleMouseOutShippingMarker = (marker: any) => {
+      return function (e: any) {
+        handleMouseOutShippingCluster([marker]);
+      };
+    };
+
+    function handleMouseOverShippingMarker(marker: any) {
+      return function (e: any) {
+        handleMouseOverShippingCluster([marker]);
+      };
+    }
+
     const handleMouseOverShippingCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {
         if (clusterMembers && clusterMembers.length > 0) {
@@ -1264,8 +1277,8 @@ const DaasMap = forwardRef(
             shippingsRef.current
           );
           const selectedSector = getSelectedSector(selectedShippingList);
-          // updateShippingMarkers(selectedSector, clusterMembers);
-          // redrawCluster(shippingClustering.current, shippingMarkers.current);
+          updateShippingMarkers(selectedSector);
+          redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
             onMouseOverShippingCluster(selectedShippingList, selectedSector);
           if (shippingGroupRef.current == "shipping") {
