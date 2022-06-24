@@ -75,6 +75,7 @@ const DaasMap = forwardRef(
     const deliveryPreviewMarkers = useRef(new Array());
     const containerMarkers = useRef(new Array());
     const unitMarkers = useRef(new Array());
+    const mypositionMarker = useRef<any>();
     const unitInfo = useRef<any>();
     const shippingsRef = useRef<MapShippingType[]>();
     const containersRef = useRef<MapContainerType[]>();
@@ -85,7 +86,6 @@ const DaasMap = forwardRef(
     const deliveryClustering = useRef<any>();
     const shippingClustering = useRef<any>();
     const containerClustering = useRef<any>();
-    const mypositionMarker = useRef<any>();
 
     const getSelectedUnit = (index: number) => {
       const units = unitsRef.current;
@@ -408,7 +408,6 @@ const DaasMap = forwardRef(
     ) => {
       if (!!metric) shippingGroupRef.current = metric;
       if (!!shippings) shippingsRef.current = shippings;
-
       removeMarkers(shippingMarkers.current);
       if (
         isVisibleMarkers &&
@@ -423,7 +422,6 @@ const DaasMap = forwardRef(
       }
       redrawCluster(shippingClustering.current, shippingMarkers.current);
     };
-    /** Draw marker **/
 
     const drawMarkerUnit = (
       unit: MapUnitType,
@@ -701,7 +699,7 @@ const DaasMap = forwardRef(
         }
 
         const icon = (
-          <div id={"d-marker" + index} className={"shipping-marker "}>
+          <div id={"d-marker"} className={"shipping-marker "}>
             <ShippingMarker
               id={"d-marker-img"}
               className={"delivery-marker-img"}
@@ -977,7 +975,7 @@ const DaasMap = forwardRef(
       const { shipping_count, selected, return_count } = calculateShippingCount(
         clusterMembers
       );
-      updateShippingMarker(
+      updateShippingMarkerIcon(
         clusterMarker,
         selected,
         return_count,
@@ -985,7 +983,7 @@ const DaasMap = forwardRef(
       );
     };
 
-    const updateShippingMarker = (
+    const updateShippingMarkerIcon = (
       clusterMarker: any,
       selected: boolean,
       return_count?: number,
@@ -996,6 +994,7 @@ const DaasMap = forwardRef(
         if (shipping_count && shipping_count > 0) {
           const icon = (
             <ShippingMarker
+              id={"d-marker-img"}
               fill={"var(--yellow)"}
               opacity={selected ? 1 : 0.7}
               selected={selected}
@@ -1009,6 +1008,7 @@ const DaasMap = forwardRef(
         } else {
           const icon = (
             <ShippingMarker
+              id={"d-marker-img"}
               fill={"var(--errorActive"}
               opacity={selected ? 1 : 0.7}
               selected={selected}
@@ -1022,7 +1022,11 @@ const DaasMap = forwardRef(
         }
       } else {
         const icon = (
-          <ShippingMarker opacity={selected ? 1 : 0.7} selected={selected} />
+          <ShippingMarker
+            id={"d-marker-img"}
+            opacity={selected ? 1 : 0.7}
+            selected={selected}
+          />
         );
         image.replaceWith($([renderToStaticMarkup(icon)].join("")));
         image.toggleClass("selected", selected);
@@ -1030,6 +1034,14 @@ const DaasMap = forwardRef(
           .find("span.map-delivery-count")
           .text(shipping_count || "");
       }
+    };
+
+    const updateShippingMarkerSelected = (
+      clusterMarker: any,
+      selected: boolean
+    ) => {
+      const container = $(clusterMarker.getElement()).find("#d-marker");
+      container.toggleClass("selected", selected);
     };
 
     /** update style of marker if its selected or not **/
@@ -1080,7 +1092,8 @@ const DaasMap = forwardRef(
               shipping_count = 1;
             }
           }
-          updateShippingMarker(d, selected, return_count, shipping_count);
+          // updateShippingMarkerIcon(d, selected, return_count, shipping_count);
+          updateShippingMarkerSelected(d, selected);
         });
 
       // if (shippingGroupRef.current === "shipping") {
