@@ -581,8 +581,8 @@ class Cluster {
 
   handleMouseOut() {
     console.log("mouseoout", window.mouseOut);
+    window.mouseOut = false;
     if (this._onClusterMouseOut) {
-      window.mouseOut = false;
       this._onClusterMouseOut(this._clusterMember);
     }
   }

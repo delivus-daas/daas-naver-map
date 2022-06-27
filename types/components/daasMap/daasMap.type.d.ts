@@ -2,17 +2,30 @@
 export declare type Overlaped = {
     index: number;
 };
+export declare type Bound = {
+    _max?: {
+        _lat: number;
+        _lng: number;
+    };
+    _min?: {
+        _lat: number;
+        _lng: number;
+    };
+};
 export declare type DaasMapProps = {
     currentPosition?: GeolocationPosition;
     isContainerVisible?: boolean;
     isUnitVisible?: boolean;
+    isBoundVisible?: boolean;
     isShippingVisible?: boolean;
     isDeliveryVisible?: boolean;
     isVisibleMarkers?: boolean;
     compassSupported?: boolean;
     isShowInfoWindow?: boolean;
+    onGetBounds?: (bounds: Bound) => void;
+    onMapReset?: (bounds: Bound) => void;
     selectedDelivery?: number;
-    children?: JSX.Element | JSX.Element[];
+    children?: JSX.Element | JSX.Element[] | boolean;
     onClickDelivery?: (item: number) => void;
     onClickShipping?: (item: number) => void;
     onMouseOverShipping?: (item: number) => void;
@@ -22,7 +35,7 @@ export declare type DaasMapProps = {
     onClickUnit?: (item: number, unit?: MapUnitType) => void;
     onClickMap?: () => void;
     onClickContainerCluster?: (containers: MapContainerType[]) => void;
-    onClickOverlappedShipping?: (shippings: MapShippingType[], sector: MapSectorType, metric: MetricType) => void;
+    onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: MapSectorType, metric?: MetricType) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: MapSectorType) => void;
     getSectorInfo?: (sector: MapSectorType, metric: MetricType) => Promise<SectorInfoProps | undefined>;
     getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
@@ -98,7 +111,7 @@ export declare type MapDeliveryType = {
     shipping_count: number;
     return_count: number;
 };
-export declare type MetricType = "area" | "sector" | "shipping";
+export declare type MetricType = "sector" | "shipping";
 export declare type MapSectorType = {
     area: string;
     code: string;

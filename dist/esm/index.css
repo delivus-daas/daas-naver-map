@@ -6,10 +6,6 @@
     --badge: #FF4D4F;
     --mint: #00D4A1;
     --warning: #FFC61A;
-
-;
-
-;
 }
 .map {
     width: 100%;
@@ -148,28 +144,6 @@
     -webkit-animation-fill-mode: forwards;
 }
 
-.shipping-marker {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 100px;
-}
-
-.shipping-marker-round {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    border-radius: 100px;
-}
-
-.shipping-marker-round.selected {
-    background: rgba(110, 110, 255, 0.4) !important;
-}
-
-.shipping-marker.selected {
-    background: rgba(110, 110, 255, 0.4) !important;
-}
-
 .delivery-marker.selected {
     transform-origin: bottom center;
     transform-style: preserve-3D;
@@ -179,8 +153,8 @@
 }
 
 .delivery-marker-img {
-    height: 42px;
-    width: 42px;
+    height: 32px;
+    width: 24px;
 }
 
 .map-delivery-center {
@@ -289,6 +263,23 @@
     100% {
         transform: translate(0, 15%) scale(1.8);
     }
+}
+
+.map-btn-bound {
+    position: absolute;
+    background: var(--primary);
+    border: none;
+    width: 207px;
+    bottom: 20px;
+    z-index: 100;
+    left: 20px;
+    font-size: 13px;
+}
+
+.map-btn-bound-refresh {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
 }
 
 @-webkit-keyframes zoomContainer {
