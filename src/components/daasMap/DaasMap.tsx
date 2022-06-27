@@ -17,7 +17,7 @@ import EyesSvg from "../../assets/svgs/eyes";
 import MapLocationCompass from "../../assets/svgs/mapLocationCompass";
 import MarkerClustering from "../../marker-tools";
 import "./daasMap.css";
-import { ShippingMarker } from "../../assets/svgs/MarkerShipping";
+import { ShippingMarker } from "../../assets/svgs/MarkerDelivery";
 import { DeliveryMarker } from "../../assets/svgs/MarkerDeliveryNearest";
 import {
   DaasMapProps,
@@ -186,6 +186,12 @@ const DaasMap = forwardRef(
         drawDeliveriesMarkers: drawMarkersDeliveries,
         drawUnitMarkers: drawMarkersUnits,
         setMetric,
+        getBounds: () => {
+          if (mapRef.current) {
+            return mapRef.current.getBounds();
+          }
+          return null;
+        },
         zoomIn: () => {
           const map = mapRef.current;
           const zoom = map.getOptions("zoom");
@@ -245,7 +251,7 @@ const DaasMap = forwardRef(
         mapRef.current.setCursor("pointer");
         createClusterContainer(containerMarkers.current);
         createClusterDelivery(deliveryMarkers.current);
-        // createClusterShipping(shippingMarkers.current);
+        createClusterShipping(shippingMarkers.current);
 
         window.naver.maps.Event.addListener(
           mapRef.current,
@@ -579,7 +585,7 @@ const DaasMap = forwardRef(
               bg = "var(--errorActive)";
             } else {
               //mixed
-              bg = "var(--yellow)";
+              bg = "var(--warning)";
             }
           }
         }
@@ -705,7 +711,6 @@ const DaasMap = forwardRef(
               id={"d-marker-img"}
               className={"delivery-marker-img"}
               fill={bg}
-              opacity={opacity}
             />
             <span className={"map-delivery-count small bold white"}>
               {!delivery.is_return ? 1 : "R1"}
@@ -955,9 +960,11 @@ const DaasMap = forwardRef(
       $(clusterMarker.getElement()).find("span:last-child").text(count);
       const image = $(clusterMarker.getElement()).find($("WhiteDropoff"));
 
-      const { claimed, selected, assigned } = calculateContainerCount(
-        clusterMembers
-      );
+      const {
+        claimed,
+        selected,
+        assigned,
+      } = calculateContainerCount(clusterMembers);
       const container = $(clusterMarker.getElement()).find("#cluster-id");
       container.toggleClass("selected", selected);
       if (image) {
@@ -982,94 +989,58 @@ const DaasMap = forwardRef(
       count: number,
       clusterMembers: any[]
     ) => {
-      const { shipping_count, selected, return_count } = calculateShippingCount(
-        clusterMembers
-      );
-
+      const {
+        shipping_count,
+        selected,
+        highlighted,
+        return_count,
+      } = calculateShippingCount(clusterMembers);
       updateShippingMarkerIcon(
         clusterMarker,
         selected,
+        highlighted,
         return_count,
         shipping_count
       );
-      shippingClustering.current.setStylingFunction(
-        styleClusterShippingContainer
-      );
-    };
-
-    const styleClusterShippingContainer = (
-      clusterMarker: any,
-      count: number,
-      clusterMembers: any[]
-    ) => {
-      const { shipping_count, selected, return_count } = calculateShippingCount(
-        clusterMembers
-      );
-
-      console.log("styleClusterShippingContainer");
-
-      updateShippingMarkerSelected(clusterMarker, selected);
     };
 
     const updateShippingMarkerIcon = (
       clusterMarker: any,
       selected: boolean,
+      highlighted: boolean,
       return_count?: number,
       shipping_count?: number
     ) => {
       const image = $(clusterMarker.getElement()).find("#d-marker-img");
-      if (return_count && return_count > 0) {
-        if (shipping_count && shipping_count > 0) {
-          const icon = (
-            <ShippingMarker
-              id={"d-marker-img"}
-              fill={"var(--yellow)"}
-              opacity={selected ? 1 : 0.7}
-              selected={selected}
-            />
-          );
-          image.replaceWith($([renderToStaticMarkup(icon)].join("")));
-          image.toggleClass("selected", selected);
-          $(clusterMarker.getElement())
-            .find("span.map-delivery-count")
-            .text(return_count + shipping_count);
-        } else {
-          const icon = (
-            <ShippingMarker
-              id={"d-marker-img"}
-              fill={"var(--errorActive"}
-              opacity={selected ? 1 : 0.7}
-              selected={selected}
-            />
-          );
-          image.replaceWith($([renderToStaticMarkup(icon)].join("")));
-          image.toggleClass("selected", selected);
-          $(clusterMarker.getElement())
-            .find("span.map-delivery-count")
-            .text("R" + return_count);
-        }
-      } else {
-        const icon = (
+      let icon = <ShippingMarker id={"d-marker-img"} selected={selected} />;
+      if (highlighted) {
+        icon = (
           <ShippingMarker
             id={"d-marker-img"}
-            opacity={selected ? 1 : 0.7}
+            fill={"var(--mint)"}
             selected={selected}
           />
         );
-        image.replaceWith($([renderToStaticMarkup(icon)].join("")));
-        image.toggleClass("selected", selected);
-        $(clusterMarker.getElement())
-          .find("span.map-delivery-count")
-          .text(shipping_count || "");
+      } else if (return_count && return_count > 0) {
+        if (shipping_count && shipping_count > 0) {
+          icon = (
+            <ShippingMarker
+              id={"d-marker-img"}
+              fill={"var(--warning)"}
+              selected={selected}
+            />
+          );
+        } else {
+          icon = (
+            <ShippingMarker
+              id={"d-marker-img"}
+              fill={"var(--errorActive"}
+              selected={selected}
+            />
+          );
+        }
       }
-    };
-
-    const updateShippingMarkerSelected = (
-      clusterMarker: any,
-      selected: boolean
-    ) => {
-      const container = $(clusterMarker.getElement()).find("#d-marker");
-      container.toggleClass("selected", selected);
+      image.replaceWith($([renderToStaticMarkup(icon)].join("")));
     };
 
     /** update style of marker if its selected or not **/
@@ -1101,9 +1072,6 @@ const DaasMap = forwardRef(
       selectedShippingList?: MapShippingType[]
     ) => {
       const shippings = shippingsRef.current;
-      let shipping_count = 0,
-        return_count = 0;
-      //update delivery marker style when selected marker change
       shippingMarkers.current &&
         shippingMarkers.current.forEach((d, i) => {
           let selected = false;
@@ -1117,15 +1085,8 @@ const DaasMap = forwardRef(
               selectedSector,
               selectedShippingList
             );
-
-            // if (shippings[d.index].is_return) {
-            //   return_count = 1;
-            // } else {
-            //   shipping_count = 1;
-            // }
+            d.setOptions({ selected, highlighted: false });
           }
-          // updateShippingMarkerIcon(d, selected, return_count, shipping_count);
-          updateShippingMarkerSelected(d, selected);
         });
     };
 
@@ -1153,6 +1114,7 @@ const DaasMap = forwardRef(
       var members = _clusterMember;
       let return_count = 0,
         shipping_count = 0,
+        highlighted = false,
         selected = false;
       for (var i = 0, ii = members.length; i < ii; i++) {
         if (members[i].is_return) {
@@ -1163,8 +1125,11 @@ const DaasMap = forwardRef(
         if (members[i].selected) {
           selected = true;
         }
+        if (members[i].highlighted) {
+          highlighted = true;
+        }
       }
-      return { return_count, selected, shipping_count };
+      return { return_count, selected, highlighted, shipping_count };
     }
 
     const isPositionInBounds = (position: any, map: any) => {

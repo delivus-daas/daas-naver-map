@@ -1,3 +1,16 @@
+:root {
+    --primary: #6e6eff;
+    --vh: 1vh;
+    --tab-height: 83px;
+    --errorActive: #FF7864;
+    --badge: #FF4D4F;
+    --mint: #00D4A1;
+    --warning: #FFC61A;
+
+;
+
+;
+}
 .map {
     width: 100%;
     height: calc(var(--vh, 1vh) * 100 - var(--tab-height));
