@@ -30,6 +30,7 @@ import {
   SectorInfoProps,
   Overlaped,
   MetricType,
+  MarkerShipping,
 } from "./daasMap.type";
 import UnitInfo from "./UnitInfo";
 import SectorInfo from "./SectorInfo";
@@ -80,9 +81,9 @@ const DaasMap = forwardRef(
     const containerMarkers = useRef(new Array());
     const unitMarkers = useRef(new Array());
     const mypositionMarker = useRef<any>();
+    const showToolTipRef = useRef(isShowInfoWindow);
     const infoTooltip = useRef<any>();
     const shippingsRef = useRef<MapShippingType[]>();
-    const hoveredShippingsRef = useRef<MapShippingType[]>();
     const containersRef = useRef<MapContainerType[]>();
     const deliveriesRef = useRef<MapDeliveryType[]>();
     const unitsRef = useRef<MapUnitType[]>();
@@ -108,18 +109,6 @@ const DaasMap = forwardRef(
           }
         });
       return selected;
-    };
-
-    const getSelectedSector = (shippings: MapShippingType[]) => {
-      let selectedSector: any = undefined;
-      shippings.every((s) => {
-        if (!!s && (!!s.designated_sector || !!s.address?.sector)) {
-          selectedSector = s.designated_sector || s.address?.sector;
-          return false;
-        }
-        return true;
-      });
-      return selectedSector;
     };
 
     const changeCurrentPosition = useCallback(
@@ -317,6 +306,13 @@ const DaasMap = forwardRef(
       }
       redrawCluster(containerClustering.current, containerMarkers.current);
     }, [isVisibleMarkers, isContainerVisible]);
+
+    useEffect(() => {
+      showToolTipRef.current = isShowInfoWindow;
+      if (!isShowInfoWindow) {
+        closeWindowTooltip();
+      }
+    }, [isShowInfoWindow]);
 
     useEffect(() => {
       if (isVisibleMarkers && isDeliveryVisible) {
@@ -723,6 +719,8 @@ const DaasMap = forwardRef(
           highlighted: false,
           is_return: delivery.is_return,
           uuid: delivery.uuid,
+          sector_code:
+            delivery.designated_sector?.code || delivery.address.sector?.code,
           position,
           map: isPositionInBounds(position, map) ? map : null,
           icon: {
@@ -863,29 +861,25 @@ const DaasMap = forwardRef(
       });
     };
 
-    const checkMarkerIsInSector = (
-      marker: any,
+    const checkMarkerIsSelected = (
+      marker: MarkerShipping,
       selectedSector?: SectorInfoProps,
       selectedShippings?: MapShippingType[]
     ) => {
       let selected = false;
       if (!!shippingsRef.current && shippingsRef.current.length > 0) {
-        const shipping = shippingsRef.current[marker.index];
-        if (shipping) {
-          const sector = shipping.designated_sector || shipping.address?.sector;
-          switch (shippingGroupRef.current) {
-            case "sector":
-              selected = sector?.code === selectedSector?.code;
-              break;
-            case "shipping":
-              if (selectedShippings) {
-                const filtered = selectedShippings.filter(
-                  (s) => s.uuid === shipping.uuid
-                );
-                selected = filtered.length > 0;
-              }
-              break;
-          }
+        switch (shippingGroupRef.current) {
+          case "sector":
+            selected = marker?.sector_code === selectedSector?.code;
+            break;
+          case "shipping":
+            if (selectedShippings) {
+              const filtered = selectedShippings.filter(
+                (s) => s.uuid === marker.uuid
+              );
+              selected = filtered.length > 0;
+            }
+            break;
         }
       }
       return selected;
@@ -935,6 +929,7 @@ const DaasMap = forwardRef(
         stylingFunction: styleClusterShipping,
         onClusterClick: handleClickShippingCluster,
         onClusterMouseOver: handleMouseOverShippingCluster,
+        onClusterMouseOut: handleMouseOutShippingCluster,
       });
     };
 
@@ -989,6 +984,7 @@ const DaasMap = forwardRef(
         selected,
         highlighted,
         return_count,
+        sector_code,
       } = calculateShippingCount(clusterMembers);
       if (selected || highlighted) {
         console.log("styleClusterShipping", clusterMembers);
@@ -998,7 +994,8 @@ const DaasMap = forwardRef(
         selected,
         highlighted,
         return_count,
-        shipping_count
+        shipping_count,
+        sector_code
       );
     };
 
@@ -1007,8 +1004,10 @@ const DaasMap = forwardRef(
       selected: boolean,
       highlighted: boolean,
       return_count?: number,
-      shipping_count?: number
+      shipping_count?: number,
+      sector_code?: string
     ) => {
+      clusterMarker.setOptions({ sector_code });
       console.log("updateShippingMarkerIcon", highlighted, clusterMarker);
       const image = $(clusterMarker.getElement()).find("#d-marker-img");
       let icon = (
@@ -1073,18 +1072,28 @@ const DaasMap = forwardRef(
     };
 
     const selectShippingMarkers = (
-      selectedSector?: SectorInfoProps,
-      selectedShippingList?: MapShippingType[]
+      code: "highlighted" | "selected",
+      selectedSector?: string,
+      clusterMembers?: MarkerShipping[]
     ) => {
       shippingMarkers.current &&
-        shippingMarkers.current.forEach((d, i) => {
-          const selected = checkMarkerIsInSector(
-            d,
-            selectedSector,
-            selectedShippingList
-          );
-          if (selected !== d.selected) d.setOptions({ selected });
+        shippingMarkers.current.forEach((d: MarkerShipping, i) => {
+          let options: any = {};
+          options[code] = false;
+          if (shippingGroupRef.current === "sector") {
+            options[code] = selectedSector === d.sector_code;
+          }
+          if (options[code] !== d[code]) d.setOptions(options);
+          console.log("selectShippingMarkers", options, d[code]);
         });
+      if (shippingGroupRef.current === "shipping") {
+        clusterMembers &&
+          clusterMembers.forEach((d: MarkerShipping, i) => {
+            let options: any = {};
+            options[code] = true;
+            d.setOptions(options);
+          });
+      }
     };
 
     const highlightShippingMarkers = (
@@ -1118,12 +1127,13 @@ const DaasMap = forwardRef(
       return { claimed, selected, assigned };
     }
 
-    function calculateShippingCount(_clusterMember: any[]) {
+    function calculateShippingCount(_clusterMember: MarkerShipping[]) {
       var members = _clusterMember;
       let return_count = 0,
         shipping_count = 0,
         highlighted = false,
-        selected = false;
+        selected = false,
+        sector_code = "";
       for (var i = 0, ii = members.length; i < ii; i++) {
         if (members[i].selected) {
           selected = true;
@@ -1131,8 +1141,17 @@ const DaasMap = forwardRef(
         if (members[i].highlighted) {
           highlighted = true;
         }
+        if (!sector_code && members[i].sector_code) {
+          sector_code = members[i].sector_code;
+        }
       }
-      return { return_count, selected, highlighted, shipping_count };
+      return {
+        return_count,
+        selected,
+        highlighted,
+        shipping_count,
+        sector_code,
+      };
     }
 
     const isPositionInBounds = (position: any, map: any) => {
@@ -1207,49 +1226,63 @@ const DaasMap = forwardRef(
       []
     );
 
+    const handleMouseOutShippingCluster = useCallback(
+      async (
+        clusterMembers: MarkerShipping[],
+        clusterMarker: MarkerShipping
+      ) => {
+        !!onMouseOutShippingCluster &&
+          onMouseOutShippingCluster(clusterMembers);
+        closeWindowTooltip();
+      },
+      [onMouseOutShippingCluster]
+    );
+
     const handleMouseOverShippingCluster = useCallback(
-      async (clusterMembers: Overlaped[]) => {
+      async (
+        clusterMembers: MarkerShipping[],
+        clusterMarker: MarkerShipping
+      ) => {
         console.log("handleMouseOverShippingCluster");
         if (clusterMembers && clusterMembers.length > 0) {
-          hoveredShippingsRef.current = getSelectedShippings(
+          const hoveredShippings = getSelectedShippings(
             clusterMembers,
             shippingsRef.current
           );
-          const selectedSector = getSelectedSector(hoveredShippingsRef.current);
+          const hoveredSector = clusterMarker.sector_code;
           console.log(
             "handleMouseOverShippingCluster",
-            hoveredShippingsRef.current,
-            selectedSector
+            hoveredShippings,
+            hoveredSector
           );
-          selectShippingMarkers(selectedSector, hoveredShippingsRef.current);
+          selectShippingMarkers("selected", hoveredSector, clusterMembers);
           redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
-            onMouseOverShippingCluster(
-              hoveredShippingsRef.current,
-              selectedSector
-            );
-          if (shippingGroupRef.current == "shipping") {
-            drawTooltipShippings(
-              clusterMembers[0],
-              mapRef.current,
-              hoveredShippingsRef.current
-            );
-          } else {
-            if (
-              !!getSectorInfo &&
-              selectedSectorRef.current?.code !== selectedSector.code
-            ) {
-              selectedSectorRef.current = await getSectorInfo(
-                selectedSector,
-                shippingGroupRef.current
-              );
-            }
-            !!selectedSectorRef.current &&
-              drawTooltipSector(
+            onMouseOverShippingCluster(hoveredShippings, hoveredSector);
+          if (showToolTipRef.current) {
+            if (shippingGroupRef.current == "shipping") {
+              drawTooltipShippings(
                 clusterMembers[0],
                 mapRef.current,
-                selectedSectorRef.current
+                hoveredShippings
               );
+            } else {
+              if (
+                !!getSectorInfo &&
+                selectedSectorRef.current?.code !== hoveredSector
+              ) {
+                selectedSectorRef.current = await getSectorInfo(
+                  hoveredSector,
+                  shippingGroupRef.current
+                );
+              }
+              !!selectedSectorRef.current &&
+                drawTooltipSector(
+                  clusterMembers[0],
+                  mapRef.current,
+                  selectedSectorRef.current
+                );
+            }
           }
         }
       },
@@ -1257,14 +1290,25 @@ const DaasMap = forwardRef(
     );
 
     const handleClickShippingCluster = useCallback(
-      async (clusterMembers: Overlaped[]) => {
-        if (!hoveredShippingsRef.current) {
-          //if mouse over event is not called
-          handleMouseOverShippingCluster(clusterMembers);
-        }
+      async (
+        clusterMembers: MarkerShipping[],
+        clusterMarker: MarkerShipping
+      ) => {
+        const clickedShippings = getSelectedShippings(
+          clusterMembers,
+          shippingsRef.current
+        );
+        const clickedSector = clusterMarker.sector_code;
+        console.log(
+          "handleClickShippingCluster",
+          clickedShippings,
+          clickedSector
+        );
+        selectShippingMarkers("highlighted", clickedSector, clusterMembers);
+        redrawCluster(shippingClustering.current, shippingMarkers.current);
         if (onClickOverlappedShipping)
           onClickOverlappedShipping(
-            hoveredShippingsRef.current,
+            clickedShippings,
             selectedSectorRef.current,
             shippingGroupRef.current
           );
@@ -1293,6 +1337,7 @@ const DaasMap = forwardRef(
         !!onMouseOverUnit && onMouseOverUnit(index);
         updateUnitMarkers(index);
         if (
+          showToolTipRef.current &&
           !!getUnitInfo &&
           !!selectedUnit &&
           unitMarkers.current?.length > index

@@ -3,6 +3,15 @@ export type Bound = {
   _max?: { _lat: number; _lng: number };
   _min?: { _lat: number; _lng: number };
 };
+export type MarkerShipping = {
+  uuid: string;
+  is_return: boolean;
+  highlighted: boolean;
+  selected: boolean;
+  sector_code: string;
+  index: number;
+  setOptions: (opt: any) => void;
+};
 export type DaasMapProps = {
   currentPosition?: GeolocationPosition;
   isContainerVisible?: boolean;
@@ -33,10 +42,10 @@ export type DaasMapProps = {
   ) => void;
   onMouseOverShippingCluster?: (
     shippings: MapShippingType[],
-    sector: MapSectorType
+    sector: string
   ) => void;
   getSectorInfo?: (
-    sector: MapSectorType,
+    sector: string,
     metric: MetricType
   ) => Promise<SectorInfoProps | undefined>;
   getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;

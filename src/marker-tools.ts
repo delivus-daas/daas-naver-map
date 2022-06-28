@@ -481,11 +481,11 @@ class Cluster {
     this._markerClusterer = markerClusterer;
   }
 
-  _onClusterClick(member: any) {}
+  _onClusterClick(member: any, marker: any) {}
 
-  _onClusterMouseOver(member: any) {}
+  _onClusterMouseOver(member: any, marker: any) {}
 
-  _onClusterMouseOut(member: any) {}
+  _onClusterMouseOut(member: any, marker: any) {}
   /**
    * 클러스터에 마커를 추가합니다.
    * @param {window.naver.maps.Marker} marker 클러스터에 추가할 마커
@@ -575,7 +575,7 @@ class Cluster {
     console.log("mouseover", window.mouseOut);
     if (this._onClusterMouseOver && !window.mouseOut) {
       window.mouseOut = true;
-      this._onClusterMouseOver(this._clusterMember);
+      this._onClusterMouseOver(this._clusterMember, this._clusterMarker);
     }
   }
 
@@ -583,7 +583,7 @@ class Cluster {
     console.log("mouseoout", window.mouseOut);
     window.mouseOut = false;
     if (this._onClusterMouseOut) {
-      this._onClusterMouseOut(this._clusterMember);
+      this._onClusterMouseOut(this._clusterMember, this._clusterMarker);
     }
   }
 
@@ -613,15 +613,16 @@ class Cluster {
       window.naver.maps.Util.bind((e: any) => {
         if (e.domEvent.type == "mouseenter") {
           if (this._onClusterMouseOver)
-            this._onClusterMouseOver(this._clusterMember);
+            this._onClusterMouseOver(this._clusterMember, this._clusterMarker);
         } else if (e.domEvent.type == "click") {
-          if (this._onClusterClick) this._onClusterClick(this._clusterMember);
+          if (this._onClusterClick)
+            this._onClusterClick(this._clusterMember, this._clusterMarker);
           else {
             map.morph(e.coord, 13);
           }
         } else if (e.domEvent.type == "mouseleave") {
           if (this._onClusterMouseOut)
-            this._onClusterMouseOut(this._clusterMember);
+            this._onClusterMouseOut(this._clusterMember, this._clusterMarker);
         }
       }, this)
     );

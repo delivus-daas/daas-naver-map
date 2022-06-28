@@ -12,6 +12,15 @@ export declare type Bound = {
         _lng: number;
     };
 };
+export declare type MarkerShipping = {
+    uuid: string;
+    is_return: boolean;
+    highlighted: boolean;
+    selected: boolean;
+    sector_code: string;
+    index: number;
+    setOptions: (opt: any) => void;
+};
 export declare type DaasMapProps = {
     currentPosition?: GeolocationPosition;
     isContainerVisible?: boolean;
@@ -36,8 +45,8 @@ export declare type DaasMapProps = {
     onClickMap?: () => void;
     onClickContainerCluster?: (containers: MapContainerType[]) => void;
     onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: MapSectorType, metric?: MetricType) => void;
-    onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: MapSectorType) => void;
-    getSectorInfo?: (sector: MapSectorType, metric: MetricType) => Promise<SectorInfoProps | undefined>;
+    onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: string) => void;
+    getSectorInfo?: (sector: string, metric: MetricType) => Promise<SectorInfoProps | undefined>;
     getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
