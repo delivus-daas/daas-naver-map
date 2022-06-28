@@ -11,7 +11,7 @@ const SectorInfo = ({
   <div className="info-container white">
     <div className={"row small bold info-title info-row"}>
       <span className={"info-label"}>{"sector"}</span>
-      <span>{code}</span>
+      <span>{code || "지역 없음"}</span>
     </div>
     <div className={"row small info-row"}>
       <span className={"bold info-label"}>총 물품</span>

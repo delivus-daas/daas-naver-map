@@ -870,7 +870,7 @@ const DaasMap = forwardRef(
       if (!!shippingsRef.current && shippingsRef.current.length > 0) {
         switch (shippingGroupRef.current) {
           case "sector":
-            selected = marker?.sector_code === selectedSector?.code;
+            selected = marker?.sector_code == selectedSector?.code;
             break;
           case "shipping":
             if (selectedShippings) {
@@ -1081,7 +1081,7 @@ const DaasMap = forwardRef(
           let options: any = {};
           options[code] = false;
           if (shippingGroupRef.current === "sector") {
-            options[code] = selectedSector === d.sector_code;
+            options[code] = selectedSector == d.sector_code;
           }
           if (options[code] !== d[code]) d.setOptions(options);
           console.log("selectShippingMarkers", options, d[code]);
