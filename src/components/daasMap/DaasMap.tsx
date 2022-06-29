@@ -245,9 +245,8 @@ const DaasMap = forwardRef(
       if (!!window.naver.maps) {
         let mapOptions = {
           zoom: minZoom?minZoom:13,
-          minZoom,
-          maxZoom
-          // center: cityHall,
+          minZoom: minZoom||5,
+          maxZoom: maxZoom||21
         };
         mapRef.current = new window.naver.maps.Map("map", mapOptions);
         mapRef.current.setCursor("pointer");
