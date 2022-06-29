@@ -48,8 +48,8 @@ const DaasMap = forwardRef(
       currentPosition,
       compassSupported,
       children,
-        maxZoom,
-        minZoom,
+      maxZoom,
+      minZoom,
       onClickMap,
       selectedDelivery,
       isVisibleMarkers,
@@ -178,10 +178,11 @@ const DaasMap = forwardRef(
     useImperativeHandle(
       ref,
       () => ({
-        drawShippingMarkers: drawMarkersShippings,
+        drawMarkersShippings,
         drawContainerMarkers: drawMarkersContainers,
         drawDeliveriesMarkers: drawMarkersDeliveries,
         drawUnitMarkers: drawMarkersUnits,
+        addMarkersShippings,
         setMetric,
         getBounds: () => {
           if (mapRef.current) {
@@ -243,10 +244,12 @@ const DaasMap = forwardRef(
 
     useEffect(() => {
       if (!!window.naver.maps) {
+        const gonde = new window.naver.maps.LatLng(37.5403762, 127.067082);
         let mapOptions = {
-          zoom: minZoom?minZoom:13,
-          minZoom: minZoom||5,
-          maxZoom: maxZoom||21
+          zoom: minZoom ? minZoom : 13,
+          minZoom: minZoom || 5,
+          maxZoom: maxZoom || 21,
+          center: gonde,
         };
         mapRef.current = new window.naver.maps.Map("map", mapOptions);
         mapRef.current.setCursor("pointer");
@@ -440,6 +443,33 @@ const DaasMap = forwardRef(
         });
       }
       redrawCluster(shippingClustering.current, shippingMarkers.current);
+    };
+
+    const addMarkersShippings = (shippings?: MapShippingType[]) => {
+      if (
+        isVisibleMarkers &&
+        isShippingVisible &&
+        shippings &&
+        shippings?.length > 0 &&
+        !!window.naver.maps
+      ) {
+        // removeShippingAddedMarkers(); //remove previously added markers
+        shippings.map((d, index) => {
+          let duplicated = false;
+          if (shippingsRef.current) {
+            duplicated =
+              shippingsRef.current.filter((s) => s.uuid === d.uuid).length > 0;
+          } else {
+            shippingsRef.current = [];
+          }
+          console.log(" addmarker", duplicated, d, shippingsRef.current);
+          if (!duplicated) {
+            shippingsRef.current.push(d);
+            drawMarkerShipping(d, index, true, true);
+          }
+        });
+        redrawCluster(shippingClustering.current, shippingMarkers.current);
+      }
     };
 
     const drawMarkerUnit = (
@@ -700,7 +730,12 @@ const DaasMap = forwardRef(
       }
     };
 
-    const drawMarkerShipping = (delivery: MapShippingType, index: number) => {
+    const drawMarkerShipping = (
+      delivery: MapShippingType,
+      index: number,
+      highlighted?: boolean,
+      selected?: boolean
+    ) => {
       if (!!delivery?.address?.lat && !!delivery?.address?.lng) {
         const position = new window.naver.maps.LatLng(
           delivery.address.lat,
@@ -718,12 +753,14 @@ const DaasMap = forwardRef(
         );
         const markerOptions = {
           index,
-          selected: false,
-          highlighted: false,
+          selected,
+          highlighted,
           is_return: delivery.is_return,
           uuid: delivery.uuid,
           sector_code:
-            delivery.designated_sector?.code || delivery.address.sector?.code || "",
+            delivery.designated_sector?.code ||
+            delivery.address.sector?.code ||
+            "",
           position,
           map: isPositionInBounds(position, map) ? map : null,
           icon: {
