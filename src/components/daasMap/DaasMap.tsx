@@ -720,7 +720,7 @@ const DaasMap = forwardRef(
           is_return: delivery.is_return,
           uuid: delivery.uuid,
           sector_code:
-            delivery.designated_sector?.code || delivery.address.sector?.code,
+            delivery.designated_sector?.code || delivery.address.sector?.code || "",
           position,
           map: isPositionInBounds(position, map) ? map : null,
           icon: {
@@ -861,30 +861,6 @@ const DaasMap = forwardRef(
       });
     };
 
-    const checkMarkerIsSelected = (
-      marker: MarkerShipping,
-      selectedSector?: SectorInfoProps,
-      selectedShippings?: MapShippingType[]
-    ) => {
-      let selected = false;
-      if (!!shippingsRef.current && shippingsRef.current.length > 0) {
-        switch (shippingGroupRef.current) {
-          case "sector":
-            selected = marker?.sector_code == selectedSector?.code;
-            break;
-          case "shipping":
-            if (selectedShippings) {
-              const filtered = selectedShippings.filter(
-                (s) => s.uuid === marker.uuid
-              );
-              selected = filtered.length > 0;
-            }
-            break;
-        }
-      }
-      return selected;
-    };
-
     const checkMarkerInShippings = (
       marker: any,
       selectedShippings?: MapShippingType[]
@@ -986,9 +962,6 @@ const DaasMap = forwardRef(
         return_count,
         sector_code,
       } = calculateShippingCount(clusterMembers);
-      if (selected || highlighted) {
-        console.log("styleClusterShipping", clusterMembers);
-      }
       updateShippingMarkerIcon(
         clusterMarker,
         selected,
@@ -1008,7 +981,6 @@ const DaasMap = forwardRef(
       sector_code?: string
     ) => {
       clusterMarker.setOptions({ sector_code });
-      console.log("updateShippingMarkerIcon", highlighted, clusterMarker);
       const image = $(clusterMarker.getElement()).find("#d-marker-img");
       let icon = (
         <ShippingMarker
@@ -1084,7 +1056,6 @@ const DaasMap = forwardRef(
             options[code] = selectedSector == d.sector_code;
           }
           if (options[code] !== d[code]) d.setOptions(options);
-          console.log("selectShippingMarkers", options, d[code]);
         });
       if (shippingGroupRef.current === "shipping") {
         clusterMembers &&
@@ -1099,7 +1070,6 @@ const DaasMap = forwardRef(
     const highlightShippingMarkers = (
       selectedShippingList?: MapShippingType[]
     ) => {
-      console.log("drawHighlightedShippings", selectedShippingList);
       shippingMarkers.current &&
         shippingMarkers.current.forEach((d, i) => {
           const highlighted = checkMarkerInShippings(d, selectedShippingList);
@@ -1243,18 +1213,12 @@ const DaasMap = forwardRef(
         clusterMembers: MarkerShipping[],
         clusterMarker: MarkerShipping
       ) => {
-        console.log("handleMouseOverShippingCluster");
         if (clusterMembers && clusterMembers.length > 0) {
           const hoveredShippings = getSelectedShippings(
             clusterMembers,
             shippingsRef.current
           );
           const hoveredSector = clusterMarker.sector_code;
-          console.log(
-            "handleMouseOverShippingCluster",
-            hoveredShippings,
-            hoveredSector
-          );
           selectShippingMarkers("selected", hoveredSector, clusterMembers);
           redrawCluster(shippingClustering.current, shippingMarkers.current);
           onMouseOverShippingCluster &&
@@ -1299,11 +1263,6 @@ const DaasMap = forwardRef(
           shippingsRef.current
         );
         const clickedSector = clusterMarker.sector_code;
-        console.log(
-          "handleClickShippingCluster",
-          clickedShippings,
-          clickedSector
-        );
         selectShippingMarkers("highlighted", clickedSector, clusterMembers);
         redrawCluster(shippingClustering.current, shippingMarkers.current);
         if (onClickOverlappedShipping)
