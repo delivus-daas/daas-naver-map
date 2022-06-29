@@ -462,7 +462,6 @@ const DaasMap = forwardRef(
           } else {
             shippingsRef.current = [];
           }
-          console.log(" addmarker", duplicated, d, shippingsRef.current);
           if (!duplicated) {
             shippingsRef.current.push(d);
             drawMarkerShipping(d, index, true, true);
@@ -1020,7 +1019,7 @@ const DaasMap = forwardRef(
       shipping_count?: number,
       sector_code?: string
     ) => {
-      clusterMarker.setOptions({ sector_code });
+      clusterMarker.setOptions({ sector_code, highlighted, selected });
       const image = $(clusterMarker.getElement()).find("#d-marker-img");
       let icon = (
         <ShippingMarker
@@ -1080,6 +1079,13 @@ const DaasMap = forwardRef(
       clusterMembers &&
         clusterMembers.forEach((marker) => {
           marker.setOptions({ selected: true });
+        });
+    };
+
+    const unselectShippingMarkers = (clusterMembers?: MarkerShipping[]) => {
+      clusterMembers &&
+        clusterMembers.forEach((d: MarkerShipping, i) => {
+          d.setOptions({ highlighted: false });
         });
     };
 
@@ -1303,13 +1309,21 @@ const DaasMap = forwardRef(
           shippingsRef.current
         );
         const clickedSector = clusterMarker.sector_code;
-        selectShippingMarkers("highlighted", clickedSector, clusterMembers);
+        const highlighted = clusterMarker.highlighted;
+        console.log("handleClick", clusterMarker);
+        if (!highlighted) {
+          clusterMarker.setOptions({ highlighted: true });
+          selectShippingMarkers("highlighted", clickedSector, clusterMembers);
+        } else {
+          unselectShippingMarkers(clusterMembers);
+        }
         redrawCluster(shippingClustering.current, shippingMarkers.current);
         if (onClickOverlappedShipping)
           onClickOverlappedShipping(
             clickedShippings,
             selectedSectorRef.current,
-            shippingGroupRef.current
+            shippingGroupRef.current,
+            highlighted
           );
       },
       []
