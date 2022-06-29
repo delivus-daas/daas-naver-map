@@ -13,6 +13,8 @@ export type MarkerShipping = {
   setOptions: (opt: any) => void;
 };
 export type DaasMapProps = {
+  minZoom?: number;
+  maxZoom?: number;
   currentPosition?: GeolocationPosition;
   isContainerVisible?: boolean;
   isUnitVisible?: boolean;

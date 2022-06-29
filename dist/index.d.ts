@@ -15,6 +15,8 @@ declare type Bound = {
     };
 };
 declare type DaasMapProps = {
+    minZoom?: number;
+    maxZoom?: number;
     currentPosition?: GeolocationPosition;
     isContainerVisible?: boolean;
     isUnitVisible?: boolean;

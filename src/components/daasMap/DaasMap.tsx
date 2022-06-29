@@ -48,6 +48,8 @@ const DaasMap = forwardRef(
       currentPosition,
       compassSupported,
       children,
+        maxZoom,
+        minZoom,
       onClickMap,
       selectedDelivery,
       isVisibleMarkers,
@@ -242,7 +244,9 @@ const DaasMap = forwardRef(
     useEffect(() => {
       if (!!window.naver.maps) {
         let mapOptions = {
-          zoom: 13,
+          zoom: minZoom?minZoom:13,
+          minZoom,
+          maxZoom
           // center: cityHall,
         };
         mapRef.current = new window.naver.maps.Map("map", mapOptions);
