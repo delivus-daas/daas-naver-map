@@ -16,6 +16,7 @@ export type DaasMapProps = {
   minZoom?: number;
   maxZoom?: number;
   currentPosition?: GeolocationPosition;
+  enableShippingOver?: boolean;
   isContainerVisible?: boolean;
   isUnitVisible?: boolean;
   isBoundVisible?: boolean;

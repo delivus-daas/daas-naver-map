@@ -73,6 +73,7 @@ const DaasMap = forwardRef(
       onClickContainer,
       onClickUnit,
       isShowInfoWindow,
+      enableShippingOver,
     }: DaasMapProps,
     ref
   ) => {
@@ -90,6 +91,7 @@ const DaasMap = forwardRef(
     const deliveriesRef = useRef<MapDeliveryType[]>();
     const unitsRef = useRef<MapUnitType[]>();
     const selectedSectorRef = useRef<SectorInfoProps>();
+    const enableShippingOverRef = useRef(enableShippingOver);
     const shippingGroupRef = useRef<MetricType>("sector");
     const selectedDeliveryIdx = useRef(0);
     const deliveryClustering = useRef<any>();
@@ -122,12 +124,6 @@ const DaasMap = forwardRef(
         clusterMembers.forEach((m) => {
           if (data) {
             selected = selected.concat(data.filter((d) => d.uuid == m.uuid));
-            console.log(
-                "handle getSelectedShippings",
-                m.uuid,
-                selected,
-                data.filter((d) => d.uuid == m.uuid)
-            );
           }
         });
       return selected;
@@ -332,6 +328,10 @@ const DaasMap = forwardRef(
       }
       redrawCluster(containerClustering.current, containerMarkers.current);
     }, [isVisibleMarkers, isContainerVisible]);
+
+    useEffect(() => {
+      enableShippingOverRef.current = enableShippingOver;
+    }, [enableShippingOver]);
 
     useEffect(() => {
       showToolTipRef.current = isShowInfoWindow;
@@ -1102,10 +1102,17 @@ const DaasMap = forwardRef(
         });
     };
 
-    const unselectShippingMarkers = (clusterMembers?: MarkerShipping[]) => {
+    const unselectShippingCluster = (clusterMembers?: MarkerShipping[]) => {
       clusterMembers &&
         clusterMembers.forEach((d: MarkerShipping, i) => {
           d.setOptions({ highlighted: false });
+        });
+    };
+
+    const selectShippingCluster = (clusterMembers?: MarkerShipping[]) => {
+      clusterMembers &&
+        clusterMembers.forEach((d: MarkerShipping, i) => {
+          d.setOptions({ highlighted: true });
         });
     };
 
@@ -1120,8 +1127,11 @@ const DaasMap = forwardRef(
           options[code] = false;
           if (shippingGroupRef.current === "sector") {
             options[code] = selectedSector == d.sector_code;
+            if(code === "highlighted"){
+              options.selected = false
+            }
           }
-          if (options[code] !== d[code]) d.setOptions(options);
+          d.setOptions(options);
         });
       if (shippingGroupRef.current === "shipping") {
         clusterMembers &&
@@ -1279,14 +1289,19 @@ const DaasMap = forwardRef(
         clusterMembers: MarkerShipping[],
         clusterMarker: MarkerShipping
       ) => {
-        if (clusterMembers && clusterMembers.length > 0) {
+        if (
+          clusterMembers &&
+          clusterMembers.length > 0
+        ) {
           const hoveredShippings = getSelectedShippings(
             clusterMembers,
             shippingsRef.current
           );
           const hoveredSector = clusterMarker.sector_code;
-          selectShippingMarkers("selected", hoveredSector, clusterMembers);
-          redrawCluster(shippingClustering.current, shippingMarkers.current);
+          if(enableShippingOverRef.current) {
+            selectShippingMarkers("selected", hoveredSector, clusterMembers);
+            redrawCluster(shippingClustering.current, shippingMarkers.current);
+          }
           onMouseOverShippingCluster &&
             onMouseOverShippingCluster(hoveredShippings, hoveredSector);
           if (showToolTipRef.current) {
@@ -1330,12 +1345,15 @@ const DaasMap = forwardRef(
         );
         const clickedSector = clusterMarker.sector_code;
         const highlighted = clusterMarker.highlighted;
-        console.log("handleClick", clusterMarker);
         if (!highlighted) {
           clusterMarker.setOptions({ highlighted: true });
-          selectShippingMarkers("highlighted", clickedSector, clusterMembers);
+          if (selectedSectorRef.current?.code !== clickedSector) {
+            selectShippingMarkers("highlighted", clickedSector, clusterMembers);
+          } else {
+            selectShippingCluster(clusterMembers);
+          }
         } else {
-          unselectShippingMarkers(clusterMembers);
+          unselectShippingCluster(clusterMembers);
         }
         redrawCluster(shippingClustering.current, shippingMarkers.current);
         if (onClickOverlappedShipping)
