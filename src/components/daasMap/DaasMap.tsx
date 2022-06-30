@@ -102,12 +102,32 @@ const DaasMap = forwardRef(
       return units?.length && units?.length > index ? units[index] : undefined;
     };
 
-    const getSelectedShippings = (clusters: Overlaped[], data?: any[]) => {
+    const getSelectedContainers = (clusters: Overlaped[], data?: any[]) => {
       const selected: any[] = [];
       clusters &&
         clusters.forEach((m) => {
           if (data && m.index >= 0 && data.length > m.index) {
             selected.push(data[m.index]);
+          }
+        });
+      return selected;
+    };
+
+    const getSelectedShippings = (
+      clusterMembers: MarkerShipping[],
+      data?: any[]
+    ) => {
+      let selected: any[] = [];
+      clusterMembers &&
+        clusterMembers.forEach((m) => {
+          if (data) {
+            selected = selected.concat(data.filter((d) => d.uuid == m.uuid));
+            console.log(
+                "handle getSelectedShippings",
+                m.uuid,
+                selected,
+                data.filter((d) => d.uuid == m.uuid)
+            );
           }
         });
       return selected;
@@ -1230,7 +1250,7 @@ const DaasMap = forwardRef(
 
     const handleClickContainerCluster = useCallback(
       async (clusterMembers: Overlaped[]) => {
-        const selectedContainerList = getSelectedShippings(
+        const selectedContainerList = getSelectedContainers(
           clusterMembers,
           containersRef.current
         );

@@ -572,7 +572,6 @@ class Cluster {
    * 클러스터 마커 클릭 시 줌 동작을 수행하도록 합니다.
    */
   handleMouseOver() {
-    console.log("mouseover", window.mouseOut);
     if (this._onClusterMouseOver && !window.mouseOut) {
       window.mouseOut = true;
       this._onClusterMouseOver(this._clusterMember, this._clusterMarker);
@@ -580,7 +579,6 @@ class Cluster {
   }
 
   handleMouseOut() {
-    console.log("mouseoout", window.mouseOut);
     window.mouseOut = false;
     if (this._onClusterMouseOut) {
       this._onClusterMouseOut(this._clusterMember, this._clusterMarker);
