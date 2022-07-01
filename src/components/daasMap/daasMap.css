@@ -134,14 +134,16 @@
 }
 
 .delivery-marker {
+    width: 26px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    transform-origin: bottom center;
-    transform-style: preserve-3D;
-    -webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14) reverse;
-    animation-fill-mode: forwards;
-    -webkit-animation-fill-mode: forwards;
+    /*-webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14) reverse;*/
+    /*transform-origin: bottom center;*/
+    /*transform-style: preserve-3D;*/
+    /*animation-fill-mode: forwards;*/
+    /*-webkit-animation-fill-mode: forwards;*/
 }
 
 .delivery-marker.selected {
@@ -254,9 +256,9 @@
         transform: translate(0, 0%) scale(1);
     }
     100% {
-        -webkit-transform: translate(0, 15%) scale(1.8);
-        -ms-transform: translate(0, 15%) scale(1.8);
-        transform: translate(0, 15%) scale(1.8);
+        -webkit-transform: translate(0, 15%) scale(1.5);
+        -ms-transform: translate(0, 15%) scale(1.5);
+        transform: translate(0, 15%) scale(1.5);
     }
 }
 

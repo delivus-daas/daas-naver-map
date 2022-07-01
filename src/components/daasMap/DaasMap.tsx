@@ -378,13 +378,19 @@ const DaasMap = forwardRef(
     useEffect(() => {
       //update delivery marker style when selected marker change
       const map: any = mapRef.current;
+      console.log("hndle select", selectedDelivery)
       deliveryMarkers.current &&
-        deliveryMarkers.current.forEach((d, i) => {
-          if (selectedDelivery == i) {
-            map.setCenter(d.position);
+        deliveryMarkers.current.forEach((marker) => {
+          const selected = selectedDelivery == marker.index;
+          const selectedMarker = $(marker.getElement()).find("#d-marker" + marker.index);
+          selectedMarker.toggleClass("selected", selected)
+          if (selected) {
+            map.setCenter(marker.position);
+            marker.setZIndex(1000);
+            console.log("hndle select", marker, selectedMarker)
+          } else {
+            marker.setZIndex(100);
           }
-          const selectedMarker = $(d.getElement()).find("#d-marker" + i);
-          selectedMarker.toggleClass("selected", i === selectedDelivery);
         });
     }, [selectedDelivery]);
 
@@ -637,6 +643,9 @@ const DaasMap = forwardRef(
         let width = 26;
         let height = 30;
         let className = "";
+        if (selectedDeliveryIdx.current === index) {
+          className = "selected";
+        }
         if (delivery.complete) {
           bg = "var(--grey96)";
         } else {
@@ -655,7 +664,7 @@ const DaasMap = forwardRef(
             id={"d-marker" + index}
             className={"delivery-marker body1 bold white " + className}
           >
-            <DeliveryMarker style={{ width, height }} fill={bg} />
+            <DeliveryMarker fill={bg} />
             {index == recommendIdx ? (
               <div className={"map-delivery-center"} />
             ) : delivery.shipping_count > 0 ? (
@@ -680,6 +689,7 @@ const DaasMap = forwardRef(
         );
         var markerOptions = {
           position,
+          index,
           map: isPositionInBounds(position, map) && visible ? map : null,
           icon: {
             content: [renderToStaticMarkup(icon)].join(""),
@@ -1081,9 +1091,9 @@ const DaasMap = forwardRef(
     /** update style of marker if its selected or not **/
     const updateUnitMarkers = (selectedUnitIndex?: number) => {
       unitMarkers.current &&
-        unitMarkers.current.forEach((d, i) => {
-          const markerSvg = $("#u-marker" + i);
-          const selected = selectedUnitIndex == i;
+        unitMarkers.current.forEach((d) => {
+          const markerSvg = $("#u-marker" + d.index);
+          const selected = selectedUnitIndex == d.index;
           d.setOptions({ selected, size: selected ? 64 : 32 });
           markerSvg.toggleClass("selected", selected);
         });
@@ -1091,8 +1101,8 @@ const DaasMap = forwardRef(
 
     const updateContainerMarkers = (clusterMembers?: any[]) => {
       containerMarkers.current &&
-        containerMarkers.current.forEach((d, i) => {
-          const markerSvg = $("#u-marker" + i);
+        containerMarkers.current.forEach((d) => {
+          const markerSvg = $("#u-marker" + d.index);
           d.setOptions({ selected: false, size: 32 });
           markerSvg.toggleClass("selected", false);
         });
@@ -1104,14 +1114,14 @@ const DaasMap = forwardRef(
 
     const unselectShippingCluster = (clusterMembers?: MarkerShipping[]) => {
       clusterMembers &&
-        clusterMembers.forEach((d: MarkerShipping, i) => {
+        clusterMembers.forEach((d: MarkerShipping) => {
           d.setOptions({ highlighted: false });
         });
     };
 
     const selectShippingCluster = (clusterMembers?: MarkerShipping[]) => {
       clusterMembers &&
-        clusterMembers.forEach((d: MarkerShipping, i) => {
+        clusterMembers.forEach((d: MarkerShipping) => {
           d.setOptions({ highlighted: true });
         });
     };
@@ -1122,20 +1132,20 @@ const DaasMap = forwardRef(
       clusterMembers?: MarkerShipping[]
     ) => {
       shippingMarkers.current &&
-        shippingMarkers.current.forEach((d: MarkerShipping, i) => {
+        shippingMarkers.current.forEach((d: MarkerShipping) => {
           let options: any = {};
           options[code] = false;
           if (shippingGroupRef.current === "sector") {
             options[code] = selectedSector == d.sector_code;
-            if(code === "highlighted"){
-              options.selected = false
+            if (code === "highlighted") {
+              options.selected = false;
             }
           }
           d.setOptions(options);
         });
       if (shippingGroupRef.current === "shipping") {
         clusterMembers &&
-          clusterMembers.forEach((d: MarkerShipping, i) => {
+          clusterMembers.forEach((d: MarkerShipping) => {
             let options: any = {};
             options[code] = true;
             d.setOptions(options);
@@ -1147,7 +1157,7 @@ const DaasMap = forwardRef(
       selectedShippingList?: MapShippingType[]
     ) => {
       shippingMarkers.current &&
-        shippingMarkers.current.forEach((d, i) => {
+        shippingMarkers.current.forEach((d) => {
           const highlighted = checkMarkerInShippings(d, selectedShippingList);
           if (highlighted !== d.highlighted) d.setOptions({ highlighted });
         });
@@ -1289,16 +1299,13 @@ const DaasMap = forwardRef(
         clusterMembers: MarkerShipping[],
         clusterMarker: MarkerShipping
       ) => {
-        if (
-          clusterMembers &&
-          clusterMembers.length > 0
-        ) {
+        if (clusterMembers && clusterMembers.length > 0) {
           const hoveredShippings = getSelectedShippings(
             clusterMembers,
             shippingsRef.current
           );
           const hoveredSector = clusterMarker.sector_code;
-          if(enableShippingOverRef.current) {
+          if (enableShippingOverRef.current) {
             selectShippingMarkers("selected", hoveredSector, clusterMembers);
             redrawCluster(shippingClustering.current, shippingMarkers.current);
           }
