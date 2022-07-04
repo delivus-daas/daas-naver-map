@@ -40,7 +40,7 @@ export type DaasMapProps = {
   onClickContainerCluster?: (containers: MapContainerType[]) => void;
   onClickOverlappedShipping?: (
     shippings?: MapShippingType[],
-    sector?: MapSectorType,
+    sector?: string,
     metric?: MetricType,
     highlighted?: boolean
   ) => void;

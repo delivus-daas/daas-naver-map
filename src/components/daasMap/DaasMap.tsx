@@ -378,16 +378,18 @@ const DaasMap = forwardRef(
     useEffect(() => {
       //update delivery marker style when selected marker change
       const map: any = mapRef.current;
-      console.log("hndle select", selectedDelivery)
+      console.log("hndle select", selectedDelivery);
       deliveryMarkers.current &&
         deliveryMarkers.current.forEach((marker) => {
           const selected = selectedDelivery == marker.index;
-          const selectedMarker = $(marker.getElement()).find("#d-marker" + marker.index);
-          selectedMarker.toggleClass("selected", selected)
+          const selectedMarker = $(marker.getElement()).find(
+            "#d-marker" + marker.index
+          );
+          selectedMarker.toggleClass("selected", selected);
           if (selected) {
             map.setCenter(marker.position);
             marker.setZIndex(1000);
-            console.log("hndle select", marker, selectedMarker)
+            console.log("hndle select", marker, selectedMarker);
           } else {
             marker.setZIndex(100);
           }
@@ -1159,7 +1161,7 @@ const DaasMap = forwardRef(
       shippingMarkers.current &&
         shippingMarkers.current.forEach((d) => {
           const highlighted = checkMarkerInShippings(d, selectedShippingList);
-          if (highlighted !== d.highlighted) d.setOptions({ highlighted });
+          d.setOptions({ highlighted, selected: highlighted });
         });
     };
 
@@ -1366,7 +1368,7 @@ const DaasMap = forwardRef(
         if (onClickOverlappedShipping)
           onClickOverlappedShipping(
             clickedShippings,
-            selectedSectorRef.current,
+            clickedSector,
             shippingGroupRef.current,
             highlighted
           );
