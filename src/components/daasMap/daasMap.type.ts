@@ -9,6 +9,7 @@ export type MarkerShipping = {
   highlighted: boolean;
   selected: boolean;
   sector_code: string;
+  container_uuid: string;
   index: number;
   setOptions: (opt: any) => void;
 };
@@ -41,6 +42,7 @@ export type DaasMapProps = {
   onClickOverlappedShipping?: (
     shippings?: MapShippingType[],
     sector?: string,
+    container?: string,
     metric?: MetricType,
     highlighted?: boolean
   ) => void;
@@ -52,6 +54,9 @@ export type DaasMapProps = {
     sector: string,
     metric: MetricType
   ) => Promise<SectorInfoProps | undefined>;
+  getContainerInfo?: (
+    container: string
+  ) => Promise<ContainerInfoProps | undefined>;
   getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
   onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
@@ -70,6 +75,15 @@ export interface UnitInfoProps extends MapUnitType {
 export interface ShippingsInfoProps {
   shippings: MapShippingType[];
 }
+export interface ContainerInfoProps {
+  uuid: string;
+  count_shipping?: number;
+  count_return?: number;
+  box?: {
+    alias: string;
+  };
+}
+
 export interface SectorInfoProps extends MapSectorType {
   count_total?: number;
   count_shipping?: number;
@@ -131,7 +145,7 @@ export type MapDeliveryType = {
   return_count: number;
 };
 
-export type MetricType = "sector" | "shipping";
+export type MetricType = "sector" | "shipping" | "container";
 
 export type MapSectorType = {
   area: string;
@@ -152,7 +166,5 @@ export type MapShippingType = {
     area: string;
     code: string;
   };
-  shipping_container?: {
-    uuid: string;
-  };
+  shipping_container?: ContainerInfoProps;
 };

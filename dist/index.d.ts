@@ -40,9 +40,10 @@ declare type DaasMapProps = {
     onClickUnit?: (item: number, unit?: MapUnitType) => void;
     onClickMap?: () => void;
     onClickContainerCluster?: (containers: MapContainerType[]) => void;
-    onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: string, metric?: MetricType, highlighted?: boolean) => void;
+    onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: string, container?: string, metric?: MetricType, highlighted?: boolean) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: string) => void;
     getSectorInfo?: (sector: string, metric: MetricType) => Promise<SectorInfoProps | undefined>;
+    getContainerInfo?: (container: string) => Promise<ContainerInfoProps | undefined>;
     getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
@@ -55,6 +56,14 @@ interface UnitInfoProps extends MapUnitType {
     num_out_delivery_completed: number;
     num_unit_returned: 0;
     index?: number;
+}
+interface ContainerInfoProps {
+    uuid: string;
+    count_shipping?: number;
+    count_return?: number;
+    box?: {
+        alias: string;
+    };
 }
 interface SectorInfoProps extends MapSectorType {
     count_total?: number;
@@ -103,7 +112,7 @@ declare type MapUnitType = {
     };
     sector_codes: string;
 };
-declare type MetricType = "sector" | "shipping";
+declare type MetricType = "sector" | "shipping" | "container";
 declare type MapSectorType = {
     area: string;
     code: string;
@@ -123,9 +132,7 @@ declare type MapShippingType = {
         area: string;
         code: string;
     };
-    shipping_container?: {
-        uuid: string;
-    };
+    shipping_container?: ContainerInfoProps;
 };
 
 declare global {

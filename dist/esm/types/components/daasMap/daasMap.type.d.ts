@@ -18,6 +18,7 @@ export declare type MarkerShipping = {
     highlighted: boolean;
     selected: boolean;
     sector_code: string;
+    container_uuid: string;
     index: number;
     setOptions: (opt: any) => void;
 };
@@ -47,9 +48,10 @@ export declare type DaasMapProps = {
     onClickUnit?: (item: number, unit?: MapUnitType) => void;
     onClickMap?: () => void;
     onClickContainerCluster?: (containers: MapContainerType[]) => void;
-    onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: string, metric?: MetricType, highlighted?: boolean) => void;
+    onClickOverlappedShipping?: (shippings?: MapShippingType[], sector?: string, container?: string, metric?: MetricType, highlighted?: boolean) => void;
     onMouseOverShippingCluster?: (shippings: MapShippingType[], sector: string) => void;
     getSectorInfo?: (sector: string, metric: MetricType) => Promise<SectorInfoProps | undefined>;
+    getContainerInfo?: (container: string) => Promise<ContainerInfoProps | undefined>;
     getUnitInfo?: (unit: MapUnitType) => Promise<UnitInfoProps | undefined>;
     onMouseOutShippingCluster?: (overlaped: Overlaped[]) => void;
 };
@@ -65,6 +67,14 @@ export interface UnitInfoProps extends MapUnitType {
 }
 export interface ShippingsInfoProps {
     shippings: MapShippingType[];
+}
+export interface ContainerInfoProps {
+    uuid: string;
+    count_shipping?: number;
+    count_return?: number;
+    box?: {
+        alias: string;
+    };
 }
 export interface SectorInfoProps extends MapSectorType {
     count_total?: number;
@@ -123,7 +133,7 @@ export declare type MapDeliveryType = {
     shipping_count: number;
     return_count: number;
 };
-export declare type MetricType = "sector" | "shipping";
+export declare type MetricType = "sector" | "shipping" | "container";
 export declare type MapSectorType = {
     area: string;
     code: string;
@@ -143,7 +153,5 @@ export declare type MapShippingType = {
         area: string;
         code: string;
     };
-    shipping_container?: {
-        uuid: string;
-    };
+    shipping_container?: ContainerInfoProps;
 };
