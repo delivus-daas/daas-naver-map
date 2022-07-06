@@ -1156,10 +1156,11 @@ const DaasMap = forwardRef(
 
     const selectShippingMarkersInSector = (
       code: "highlighted" | "selected",
-      selectedSector?: string
+      selectedSector?: string,
+      markers?: MarkerShipping[]
     ) => {
-      shippingMarkers.current &&
-        shippingMarkers.current.forEach((d: MarkerShipping) => {
+      markers &&
+        markers.forEach((d: MarkerShipping) => {
           let options: any = {};
           options[code] = selectedSector == d.sector_code;
           if (code === "highlighted") {
@@ -1172,10 +1173,11 @@ const DaasMap = forwardRef(
 
     const selectShippingMarkersInContainer = (
       code: "highlighted" | "selected",
-      selectedContainer?: string
+      selectedContainer?: string,
+      markers?: MarkerShipping[]
     ) => {
-      shippingMarkers.current &&
-        shippingMarkers.current.forEach((d: MarkerShipping) => {
+      markers &&
+        markers.forEach((d: MarkerShipping) => {
           let options: any = {};
           options[code] = selectedContainer == d.container_uuid;
           if (code === "highlighted") {
@@ -1196,15 +1198,7 @@ const DaasMap = forwardRef(
           options[code] = false;
           !!d[code] && d.setOptions(options);
         });
-      clusterMembers &&
-        clusterMembers.forEach((d: MarkerShipping) => {
-          let options: any = {};
-          options[code] = true;
-          if (code === "highlighted") {
-            options.selected = true;
-          }
-          d.setOptions(options);
-        });
+      addSelectedShippingMarkers(code, clusterMembers);
       redrawCluster(shippingClustering.current, shippingMarkers.current);
     };
 
@@ -1389,7 +1383,11 @@ const DaasMap = forwardRef(
               if (hoveredSectorRef.current?.code !== hoveredSector) {
                 if (!!hoveredSector) {
                   if (enableShippingOverRef.current)
-                    selectShippingMarkersInSector("selected", hoveredSector);
+                    selectShippingMarkersInSector(
+                      "selected",
+                      hoveredSector,
+                      shippingMarkers.current
+                    );
                   if (!!getSectorInfo) {
                     hoveredSectorRef.current = await getSectorInfo(
                       hoveredSector,
@@ -1398,7 +1396,7 @@ const DaasMap = forwardRef(
                   }
                 } else {
                   hoveredSectorRef.current = undefined;
-                  selectShippingMarkers("selected", clusterMembers);
+                  addSelectedShippingMarkers("selected", clusterMembers);
                 }
               }
               if (showToolTipRef.current) {
@@ -1415,7 +1413,8 @@ const DaasMap = forwardRef(
                   if (enableShippingOverRef.current)
                     selectShippingMarkersInContainer(
                       "selected",
-                      hoveredContainer
+                      hoveredContainer,
+                      shippingMarkers.current
                     );
                   if (!!getContainerInfo && hoveredContainer) {
                     hoveredContainerRef.current = await getContainerInfo(
@@ -1424,7 +1423,7 @@ const DaasMap = forwardRef(
                   }
                 } else {
                   hoveredContainerRef.current = undefined;
-                  selectShippingMarkers("selected", clusterMembers);
+                  addSelectedShippingMarkers("selected", clusterMembers);
                 }
               }
               if (showToolTipRef.current) {
@@ -1478,28 +1477,46 @@ const DaasMap = forwardRef(
           clusterMarker.setOptions({ highlighted: true });
           switch (shippingGroupRef.current) {
             case "sector":
-              if (
-                clickedSectorCodeRef.current !== clickedSector &&
-                !!clickedSector
-              ) {
-                clickedSectorCodeRef.current = clickedSector;
-                selectShippingMarkersInSector("highlighted", clickedSector);
+              if (!!clickedSector) {
+                if (clickedSectorCodeRef.current !== clickedSector) {
+                  clickedSectorCodeRef.current = clickedSector;
+                  selectShippingMarkersInSector(
+                    "highlighted",
+                    clickedSector,
+                    shippingMarkers.current
+                  );
+                } else {
+                  selectShippingMarkersInSector(
+                    "highlighted",
+                    clickedSector,
+                    clusterMembers
+                  );
+                }
               } else {
                 addSelectedShippingMarkers("highlighted", clusterMembers);
               }
               break;
             case "container":
-              if (
-                !!clickedContainer &&
-                clickedContainerUuidRef.current !== clickedContainer
-              ) {
-                clickedContainerUuidRef.current = clickedContainer;
-                selectShippingMarkersInContainer(
-                  "highlighted",
-                  clickedContainer
-                );
+              if (!!clickedContainer){
+                if(clickedContainerUuidRef.current !== clickedContainer) {
+                  clickedContainerUuidRef.current = clickedContainer;
+                  selectShippingMarkersInContainer(
+                      "highlighted",
+                      clickedContainer,
+                      shippingMarkers.current
+                  );
+                }else {
+                  selectShippingMarkersInContainer(
+                      "highlighted",
+                      clickedContainer,
+                      clusterMembers
+                  );
+                }
               } else {
-                addSelectedShippingMarkers("highlighted", clusterMembers);
+                addSelectedShippingMarkers(
+                  "highlighted",
+                  clusterMembers
+                );
               }
               break;
             default:
