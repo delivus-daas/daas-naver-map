@@ -1371,6 +1371,13 @@ const DaasMap = forwardRef(
         clusterMembers: MarkerShipping[],
         clusterMarker: MarkerShipping
       ) => {
+        hoveredSectorRef.current = undefined;
+        hoveredContainerRef.current = undefined;
+        selectShippingMarkersInSector(
+          "selected",
+          undefined,
+          shippingMarkers.current
+        );
         !!onMouseOutShippingCluster &&
           onMouseOutShippingCluster(clusterMembers);
         closeWindowTooltip();
