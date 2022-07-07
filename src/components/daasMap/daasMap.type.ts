@@ -4,7 +4,7 @@ export type Bound = {
   _min?: { _lat: number; _lng: number };
 };
 export type MarkerShipping = {
-  uuid: string;
+  tracking_number: string;
   is_return: boolean;
   highlighted: boolean;
   selected: boolean;

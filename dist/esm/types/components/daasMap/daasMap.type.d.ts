@@ -13,7 +13,7 @@ export declare type Bound = {
     };
 };
 export declare type MarkerShipping = {
-    uuid: string;
+    tracking_number: string;
     is_return: boolean;
     highlighted: boolean;
     selected: boolean;

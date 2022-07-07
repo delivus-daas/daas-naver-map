@@ -82,7 +82,7 @@ const DaasMap = forwardRef(
   ) => {
     const mapRef = useRef<any>();
     const deliveryMarkers = useRef<any[]>(new Array());
-    const shippingMarkers = useRef<any[]>(new Array());
+    const shippingMarkers = useRef<MarkerShipping[]>(new Array());
     const deliveryPreviewMarkers = useRef(new Array());
     const containerMarkers = useRef(new Array());
     const unitMarkers = useRef(new Array());
@@ -129,7 +129,9 @@ const DaasMap = forwardRef(
       clusterMembers &&
         clusterMembers.forEach((m) => {
           if (data) {
-            selected = selected.concat(data.filter((d) => d.uuid == m.uuid));
+            selected = selected.concat(
+              data.filter((d) => d.tracking_number == m.tracking_number)
+            );
           }
         });
       return selected;
@@ -244,10 +246,7 @@ const DaasMap = forwardRef(
         removePreviewMarkers: () => {
           removeMarkers(deliveryPreviewMarkers.current);
         },
-        drawHighlightedShippings: (highlightedShippings: any[]) => {
-          highlightShippingMarkersInShippings(highlightedShippings);
-          redrawCluster(shippingClustering.current, shippingMarkers.current);
-        },
+        drawHighlightedShippings,
         drawPreviewMarkers: (deliveries: any[]) => {
           removeMarkers(deliveryPreviewMarkers.current);
           if (deliveries && deliveries?.length > 0 && !!window.naver.maps) {
@@ -384,7 +383,7 @@ const DaasMap = forwardRef(
     useEffect(() => {
       //update delivery marker style when selected marker change
       const map: any = mapRef.current;
-      selectedDeliveryIdx.current = selectedDelivery||0;
+      selectedDeliveryIdx.current = selectedDelivery || 0;
       deliveryMarkers.current &&
         deliveryMarkers.current.forEach((marker) => {
           const selected = selectedDelivery == marker.index;
@@ -395,7 +394,12 @@ const DaasMap = forwardRef(
           if (selected) {
             map.setCenter(marker.position);
             marker.setZIndex(1000);
-            console.log("handle select", selectedDelivery, marker, selectedMarker);
+            console.log(
+              "handle select",
+              selectedDelivery,
+              marker,
+              selectedMarker
+            );
           } else {
             marker.setZIndex(100);
           }
@@ -487,17 +491,20 @@ const DaasMap = forwardRef(
         shippings?.length > 0 &&
         !!window.naver.maps
       ) {
-        // removeShippingAddedMarkers(); //remove previously added markers
+        if (!shippingsRef.current) {
+          shippingsRef.current = [];
+        }
         shippings.map((d, index) => {
-          let duplicated = false;
-          if (shippingsRef.current) {
-            duplicated =
-              shippingsRef.current.filter((s) => s.uuid === d.uuid).length > 0;
-          } else {
-            shippingsRef.current = [];
+          let duplicated;
+          if (shippingMarkers.current) {
+            duplicated = shippingMarkers.current.filter(
+              (s) => s.tracking_number === d.tracking_number
+            );
           }
-          if (!duplicated) {
-            shippingsRef.current.push(d);
+          if (!!duplicated && duplicated.length > 0) {
+            // set page
+          } else {
+            shippingsRef.current && shippingsRef.current.push(d);
             drawMarkerShipping(d, index, true, true);
           }
         });
@@ -793,7 +800,7 @@ const DaasMap = forwardRef(
           selected,
           highlighted,
           is_return: delivery.is_return,
-          uuid: delivery.uuid,
+          tracking_number: delivery.tracking_number,
           container_uuid: delivery.shipping_container?.uuid,
           sector_code:
             delivery.designated_sector?.code ||
@@ -957,16 +964,22 @@ const DaasMap = forwardRef(
     };
 
     const checkMarkerInShippings = (
-      marker: any,
+      marker: MarkerShipping,
       selectedShippings?: MapShippingType[]
     ) => {
       let highlighted = false;
       if (!!selectedShippings && selectedShippings.length > 0) {
         const filtered = selectedShippings.filter(
-          (s) => s.uuid === marker.uuid
+          (s) => s.tracking_number === marker.tracking_number
         );
         highlighted = filtered.length > 0;
       }
+      console.log(
+        "checkMarkerInShippings",
+        highlighted,
+        marker,
+        selectedShippings
+      );
       return highlighted;
     };
 
@@ -1218,7 +1231,7 @@ const DaasMap = forwardRef(
       redrawCluster(shippingClustering.current, shippingMarkers.current);
     };
 
-    const highlightShippingMarkersInShippings = (
+    const drawHighlightedShippings = (
       selectedShippingList?: MapShippingType[]
     ) => {
       shippingMarkers.current &&
@@ -1497,26 +1510,23 @@ const DaasMap = forwardRef(
               }
               break;
             case "container":
-              if (!!clickedContainer){
-                if(clickedContainerUuidRef.current !== clickedContainer) {
+              if (!!clickedContainer) {
+                if (clickedContainerUuidRef.current !== clickedContainer) {
                   clickedContainerUuidRef.current = clickedContainer;
                   selectShippingMarkersInContainer(
-                      "highlighted",
-                      clickedContainer,
-                      shippingMarkers.current
+                    "highlighted",
+                    clickedContainer,
+                    shippingMarkers.current
                   );
-                }else {
+                } else {
                   selectShippingMarkersInContainer(
-                      "highlighted",
-                      clickedContainer,
-                      clusterMembers
+                    "highlighted",
+                    clickedContainer,
+                    clusterMembers
                   );
                 }
               } else {
-                addSelectedShippingMarkers(
-                  "highlighted",
-                  clusterMembers
-                );
+                addSelectedShippingMarkers("highlighted", clusterMembers);
               }
               break;
             default:
