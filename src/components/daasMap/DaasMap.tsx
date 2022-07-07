@@ -384,7 +384,6 @@ const DaasMap = forwardRef(
     useEffect(() => {
       //update delivery marker style when selected marker change
       const map: any = mapRef.current;
-      console.log("hndle select", selectedDelivery);
       selectedDeliveryIdx.current = selectedDelivery||0;
       deliveryMarkers.current &&
         deliveryMarkers.current.forEach((marker) => {
@@ -396,7 +395,7 @@ const DaasMap = forwardRef(
           if (selected) {
             map.setCenter(marker.position);
             marker.setZIndex(1000);
-            console.log("hndle select", marker, selectedMarker);
+            console.log("handle select", selectedDelivery, marker, selectedMarker);
           } else {
             marker.setZIndex(100);
           }
