@@ -385,6 +385,7 @@ const DaasMap = forwardRef(
       //update delivery marker style when selected marker change
       const map: any = mapRef.current;
       console.log("hndle select", selectedDelivery);
+      selectedDeliveryIdx.current = selectedDelivery||0;
       deliveryMarkers.current &&
         deliveryMarkers.current.forEach((marker) => {
           const selected = selectedDelivery == marker.index;
