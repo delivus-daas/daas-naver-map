@@ -394,12 +394,6 @@ const DaasMap = forwardRef(
           if (selected) {
             map.setCenter(marker.position);
             marker.setZIndex(1000);
-            console.log(
-              "handle select",
-              selectedDelivery,
-              marker,
-              selectedMarker
-            );
           } else {
             marker.setZIndex(100);
           }
@@ -503,6 +497,9 @@ const DaasMap = forwardRef(
           }
           if (!!duplicated && duplicated.length > 0) {
             // set page
+            duplicated.forEach((d) => {
+              d.setOptions({ highlighted: true, selected: true });
+            });
           } else {
             shippingsRef.current && shippingsRef.current.push(d);
             drawMarkerShipping(d, index, true, true);
@@ -974,12 +971,6 @@ const DaasMap = forwardRef(
         );
         highlighted = filtered.length > 0;
       }
-      console.log(
-        "checkMarkerInShippings",
-        highlighted,
-        marker,
-        selectedShippings
-      );
       return highlighted;
     };
 
@@ -1167,6 +1158,14 @@ const DaasMap = forwardRef(
       redrawCluster(shippingClustering.current, shippingMarkers.current);
     };
 
+    const unselectShippingMarkers = (markers?: MarkerShipping[]) => {
+      markers &&
+        markers.forEach((d: MarkerShipping) => {
+          d.setOptions({ selected: false });
+        });
+      redrawCluster(shippingClustering.current, shippingMarkers.current);
+    };
+
     const selectShippingMarkersInSector = (
       code: "highlighted" | "selected",
       selectedSector?: string,
@@ -1176,6 +1175,7 @@ const DaasMap = forwardRef(
         markers.forEach((d: MarkerShipping) => {
           let options: any = {};
           options[code] = selectedSector == d.sector_code;
+          d.setOptions(options);
           if (code === "highlighted") {
             options.selected = options[code];
           }
@@ -1373,11 +1373,8 @@ const DaasMap = forwardRef(
       ) => {
         hoveredSectorRef.current = undefined;
         hoveredContainerRef.current = undefined;
-        selectShippingMarkersInSector(
-          "selected",
-          undefined,
-          shippingMarkers.current
-        );
+        if (enableShippingOverRef.current)
+          unselectShippingMarkers(shippingMarkers.current);
         !!onMouseOutShippingCluster &&
           onMouseOutShippingCluster(clusterMembers);
         closeWindowTooltip();
@@ -1397,7 +1394,6 @@ const DaasMap = forwardRef(
             shippingsRef.current
           );
           const hoveredContainer = clusterMarker.container_uuid;
-          console.log("hover", hoveredSector, hoveredContainer, clusterMarker);
           switch (shippingGroupRef.current) {
             case "sector":
               if (hoveredSectorRef.current?.code !== hoveredSector) {
