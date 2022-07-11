@@ -1209,6 +1209,9 @@ const DaasMap = forwardRef(
         shippingMarkers.current.forEach((d: MarkerShipping) => {
           let options: any = {};
           options[code] = false;
+          if (code === "highlighted") {
+            options.selected = false;
+          }
           !!d[code] && d.setOptions(options);
         });
       addSelectedShippingMarkers(code, clusterMembers);
@@ -1412,7 +1415,9 @@ const DaasMap = forwardRef(
                   }
                 } else {
                   hoveredSectorRef.current = undefined;
-                  addSelectedShippingMarkers("selected", clusterMembers);
+                  if (enableShippingOverRef.current) {
+                    addSelectedShippingMarkers("selected", clusterMembers);
+                  }
                 }
               }
               if (showToolTipRef.current) {
@@ -1439,7 +1444,9 @@ const DaasMap = forwardRef(
                   }
                 } else {
                   hoveredContainerRef.current = undefined;
-                  addSelectedShippingMarkers("selected", clusterMembers);
+                  if (enableShippingOverRef.current) {
+                    addSelectedShippingMarkers("selected", clusterMembers);
+                  }
                 }
               }
               if (showToolTipRef.current) {
@@ -1529,7 +1536,7 @@ const DaasMap = forwardRef(
                   );
                 }
               } else {
-                addSelectedShippingMarkers("highlighted", clusterMembers);
+                selectShippingMarkers("highlighted", clusterMembers);
               }
               break;
             default:
