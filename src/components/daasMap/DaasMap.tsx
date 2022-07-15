@@ -99,7 +99,7 @@ const DaasMap = forwardRef(
     const clickedContainerUuidRef = useRef("");
     const enableShippingOverRef = useRef(enableShippingOver);
     const shippingGroupRef = useRef<MetricType>("sector");
-    const selectedDeliveryIdx = useRef(0);
+    const selectedDeliveryIdx = useRef(-1);
     const deliveryClustering = useRef<any>();
     const shippingClustering = useRef<any>();
     const containerClustering = useRef<any>();
@@ -627,7 +627,7 @@ const DaasMap = forwardRef(
         };
         const orderMarker = new window.naver.maps.Marker(markerOptions);
         containerMarkers.current.push(orderMarker);
-        if (selectedDelivery && selectedDelivery < 0 && index == 0) {
+        if (selectedDeliveryIdx.current < 0 && index == 0) {
           map.setCenter(position);
         }
 
