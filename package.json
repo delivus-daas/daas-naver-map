@@ -1,6 +1,6 @@
 {
   "name": "daas-naver-map",
-  "version": "0.1.4",
+  "version": "0.0.4",
   "description": "Naver map component with, markers and clustering feature which is used in hub and flex app",
   "author": "Chimaa G",
   "license": "MIT",
@@ -16,8 +16,8 @@
     "rollup": "rollup -c"
   },
   "peerDependencies": {
-    "react": "16.2.0",
-    "react-dom": "16.2.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "resolutions": {
     "@types/react": "^18.0.15",
@@ -26,11 +26,11 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.2",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
     "@types/invariant": "^2.2.35",
     "@types/jquery": "^3.5.14",
     "@types/loadjs": "^4.0.1",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
     "autoprefixer": "^10.4.7",
     "babel-loader": "^8.2.5",
     "node-sass": "^7.0.1",
