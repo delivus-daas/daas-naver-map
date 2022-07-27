@@ -22,6 +22,16 @@ export declare type MarkerShipping = {
     index: number;
     setOptions: (opt: any) => void;
 };
+export declare type MarkerDelivery = {
+    uuid: string;
+    index?: number;
+    shipping_count: number;
+    return_count: number;
+    total_count?: number;
+    complete: boolean;
+    selected: boolean;
+    setOptions?: (opt: any) => void;
+};
 export declare type DaasMapProps = {
     minZoom?: number;
     maxZoom?: number;
@@ -130,8 +140,10 @@ export declare type MapDeliveryType = {
     };
     uuid: string;
     complete: boolean;
+    selected: boolean;
     shipping_count: number;
     return_count: number;
+    total_count?: number;
 };
 export declare type MetricType = "sector" | "shipping" | "container";
 export declare type MapSectorType = {

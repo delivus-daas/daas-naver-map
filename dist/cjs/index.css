@@ -133,27 +133,6 @@
     height: 52px;
 }
 
-.delivery-marker {
-    width: 26px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /*-webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14) reverse;*/
-    /*transform-origin: bottom center;*/
-    /*transform-style: preserve-3D;*/
-    /*animation-fill-mode: forwards;*/
-    /*-webkit-animation-fill-mode: forwards;*/
-}
-
-.delivery-marker.selected {
-    transform-origin: bottom center;
-    transform-style: preserve-3D;
-    -webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14);
-    animation-fill-mode: forwards;
-    -webkit-animation-fill-mode: forwards;
-}
-
 .delivery-marker-img {
     height: 32px;
     width: 24px;
@@ -199,6 +178,21 @@
 .map-order-cluster.selected {
     transform-origin: center;
     -webkit-animation: zoomContainer 0.3s cubic-bezier(0,.95,1,1.14);
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+}
+
+.delivery-marker {
+    width: 26px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delivery-marker.selected {
+    transform-origin: bottom center;
+    -webkit-animation: zoom 0.3s cubic-bezier(0,.95,1,1.14);
     animation-fill-mode: forwards;
     -webkit-animation-fill-mode: forwards;
 }

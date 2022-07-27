@@ -1,13 +1,16 @@
 import React from "react";
 
 export const DeliveryMarker = ({
+  id,
   fill = "#6E6EFF",
   style,
 }: {
+  id: string;
   fill: string;
   style?: any;
 }) => (
   <svg
+    id={id}
     style={style}
     width="48"
     height="56"
