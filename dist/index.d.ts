@@ -29,9 +29,9 @@ declare type DaasMapProps = {
     isShowInfoWindow?: boolean;
     onGetBounds?: (bounds: Bound) => void;
     onMapReset?: (bounds: Bound) => void;
-    selectedDelivery?: number;
     children?: JSX.Element | JSX.Element[] | boolean;
     onClickDelivery?: (item: number) => void;
+    onClickDeliveryCluster?: (clickedDeliveries: MapDeliveryType[], index: number) => void;
     onClickShipping?: (item: number) => void;
     onMouseOverShipping?: (item: number) => void;
     onMouseOverUnit?: (item: number) => void;
@@ -111,6 +111,19 @@ declare type MapUnitType = {
         };
     };
     sector_codes: string;
+};
+declare type MapDeliveryType = {
+    address?: {
+        lat: string;
+        lng: string;
+    };
+    index: number;
+    uuid: string;
+    complete: boolean;
+    selected: boolean;
+    shipping_count: number;
+    return_count: number;
+    total_count?: number;
 };
 declare type MetricType = "sector" | "shipping" | "container";
 declare type MapSectorType = {
